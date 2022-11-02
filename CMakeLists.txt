@@ -6,12 +6,6 @@ project(JIKKEN
     DESCRIPTION "Jikken software tool for Japan MQP"
 )
 
-set(wxWidgets_ROOT_DIR "C:/wx/3.2.1")
-
-#set(wxWidgets_LIB_DIR "${wxWidgets_ROOT_DIR}/lib/vc14x_x64_dll")
-#set(wxWidgets_CONFIGURATION msw)
-#set(wxWidgets_USE_STATIC OFF)
-
 find_package(wxWidgets REQUIRED COMPONENTS net core base)
 include(${wxWidgets_USE_FILE})
 
