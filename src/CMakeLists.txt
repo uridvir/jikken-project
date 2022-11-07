@@ -4,3 +4,8 @@ target_link_libraries(jikken
     ${OpenCV_LIBS}
     serialib
 )
+
+add_executable(video_test video_test.cpp)
+target_link_libraries(video_test
+    ${OpenCV_LIBS}
+)
