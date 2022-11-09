@@ -2,9 +2,8 @@
 #include "VideoCleaner.h"
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
-//#include <opencv2/highgui.hpp>
 
-std::string getVideoOutFilename(std::string videoFilename);
+cv::VideoWriter getWriter(std::string videoFilename);
 bool checkTextRemove(std::string videoFilename);
 
 int main(int argc, char* argv[]){
@@ -22,14 +21,24 @@ int main(int argc, char* argv[]){
 
     std::string videoFilename(argv[1]);
     cv::VideoCapture videoIn(videoFilename);
-    VideoCleaner::run(&videoIn, getVideoOutFilename(videoFilename), checkTextRemove(videoFilename));
+
+    cv::VideoWriter videoOut = getWriter(videoFilename);
+    VideoCleaner::run(&videoIn, &videoOut, checkTextRemove(videoFilename));
+    videoIn.release();
+    videoOut.release();
 
     return 0;
 }
 
-std::string getVideoOutFilename(std::string videoFilename){
+cv::VideoWriter getWriter(std::string videoFilename){
     size_t lastDot = videoFilename.find_last_of(".");
-    return "out-" + videoFilename.substr(0, lastDot) + ".avi";
+    std::string videoOutFilename = videoFilename.substr(0, lastDot) + "-out.avi";
+    cv::Size size;
+    size.width = VIDX - XCROP, size.height = VIDY;
+    if (checkTextRemove(videoFilename))
+        size.height -= YCROP_TOP + YCROP_BOTTOM;
+    int code = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
+    return cv::VideoWriter(videoOutFilename, code, FPS, size, false); //greyscale
 }
 
 bool checkTextRemove(std::string videoFilename){
