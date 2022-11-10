@@ -119,7 +119,8 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
                 }
         }
     }
-    std::cout << frameNum << std::endl;
+    if (step == 2)
+        std::cerr << "Could not find frame 2! (frames are too similar)" << std::endl;
 }
 
 bool matDiffCheck(cv::Mat* mat1, cv::Mat* mat2){
@@ -127,7 +128,7 @@ bool matDiffCheck(cv::Mat* mat1, cv::Mat* mat2){
     cv::matchTemplate(*mat1, *mat2, resultMatrix, cv::TM_SQDIFF_NORMED);
 
     float resultFloat = resultMatrix.at<float>(0, 0);
-    const float threshold = 0.05;
+    const float threshold = 0.01;
     return resultFloat > threshold;
 }
 
