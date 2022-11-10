@@ -13,5 +13,6 @@
 
 class VideoCleaner {
     public:
+    static cv::Size getOutSize(bool removeText);
     static void run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, bool removeText);
 };

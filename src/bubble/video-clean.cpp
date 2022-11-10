@@ -33,10 +33,7 @@ int main(int argc, char* argv[]){
 cv::VideoWriter getWriter(std::string videoFilename){
     size_t lastDot = videoFilename.find_last_of(".");
     std::string videoOutFilename = videoFilename.substr(0, lastDot) + "-out.avi";
-    cv::Size size;
-    size.width = VIDX - XCROP, size.height = VIDY;
-    if (checkTextRemove(videoFilename))
-        size.height -= YCROP_TOP + YCROP_BOTTOM;
+    cv::Size size = VideoCleaner::getOutSize(checkTextRemove(videoFilename));
     int code = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
     return cv::VideoWriter(videoOutFilename, code, FPS, size, false); //greyscale
 }
