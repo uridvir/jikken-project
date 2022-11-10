@@ -53,12 +53,12 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
      * The trimming will not work if the video has text and is not labeled as such.
      */
 
-    int step = 1, frameNum = 1;
+    int step = 1, frameNum = 1, absFrameNum = 1;
     cv::Mat croppedGrey1;
     
     std::vector<cv::Mat> checkBuffer;
-    std::vector<cv::Mat> debugBuffer; //Debug
-    const size_t bufferMax = 32; // The "step size" for finding frame 2
+    const size_t bufferMax = 64; // The "step size" for finding frame 2
+    checkBuffer.reserve(bufferMax);
     /**
      * Every time the buffer fills up, see if we've passed the frame 1
      * duplicates. In that case, the first non-duplicate (frame 2) is
@@ -71,6 +71,7 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
     for (; !frame.empty(); videoIn->read(frame)) {
         cv::Mat cropped = frame(cropRegion), croppedGrey = cv::Mat();
         cv::cvtColor(cropped, croppedGrey, cv::COLOR_BGR2GRAY);
+        absFrameNum++;
 
         switch (step) {
             case 1:
@@ -79,43 +80,21 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
                 step = 2;
                 break;
             case 2:
-                if (checkBuffer.size() < bufferMax){
+                if (checkBuffer.size() < bufferMax)
                     checkBuffer.push_back(croppedGrey.clone());
-                    debugBuffer.push_back(frame.clone()); //Debug
-                }
                 if (checkBuffer.size() != bufferMax) break;
 
                 if (matDiffCheck(&croppedGrey, &croppedGrey1)){
                     size_t f2i = frame2Index(&checkBuffer, &croppedGrey1);
-                    std::cout << "f2i " << f2i << std::endl;
                     for (size_t i = f2i; i < bufferMax; i++)
                         videoOut->write(checkBuffer[i]);
                     frameNum += bufferMax - f2i;
                     step = 3;
-                    std::cout << "Found frame 2!" << std::endl;
-                    cv::imshow("Frame 2", debugBuffer[f2i]);
-                    cv::waitKey(5);
-                    
-                    char str[100];
-                    sprintf(str, "Frame %d", frameNum);
-                    cv::imshow(str, frame);
-                    cv::waitKey(5);
+                    std::cout << "Found frame 2! Absolute position " << absFrameNum - bufferMax + f2i << std::endl;
                 }
                 checkBuffer.clear();
-                debugBuffer.clear();
                 break;
             case 3:
-                //Should not check and not different (shouldn't be possible)
-                //Should not check and is different
-                //Should check and is different
-                /*
-                if (shouldCheckEnd(frameNum)){
-                    char str[100];
-                    sprintf(str, "Frame %d", frameNum);
-                    cv::imshow(str, frame);
-                    cv::waitKey(5);
-                }
-                */
                 if (shouldCheckEnd(frameNum) && !matDiffCheck(&croppedGrey, &croppedGrey1)){
                     std::cout << "Wrote " << frameNum << " frames." << std::endl;
                     return;
@@ -155,11 +134,9 @@ size_t frame2Index(std::vector<cv::Mat>* buffer, cv::Mat* frame1){
     */
     while (window_size != 0) {
         size_t index = window_start + window_size - 1;
-        bool diff = matDiffCheck(&buffer->at(index), frame1);
-        if (!diff)
+        if (!matDiffCheck(&buffer->at(index), frame1))
             window_start += window_size;
         window_size = window_size / 2;
-        std::cout << diff << std::endl;
     }
 
     return window_start;
@@ -167,7 +144,7 @@ size_t frame2Index(std::vector<cv::Mat>* buffer, cv::Mat* frame1){
 
 bool shouldCheckEnd(int frameNum){
     const std::set<int> validFrameCounts = {546, 2184, 8736}; //From Kodak Motion Corder manual, page 3.5
-    const int slop = 5; //Allow for a few skipped frames etc... video encoding is fucky lol
+    const int slop = 2; //Allow for a few skipped frames etc... video encoding is fucky lol
 
     for (int frameCount : validFrameCounts)
         if (std::abs(frameNum - frameCount) <= slop)
