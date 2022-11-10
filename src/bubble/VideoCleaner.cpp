@@ -2,6 +2,7 @@
 #include "VideoCleaner.h"
 
 #include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, bool removeText){
     cv::Rect cropRegion;
@@ -17,6 +18,11 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
         std::cerr << "ビデオサイズが違います！正解のサイズが" << VIDX << "x" << VIDY << "である。" << std::endl;
         return;
     }
+
+    cv::Mat _frame = frame.clone();
+    cv::rectangle(_frame, cropRegion, cv::Scalar(0, 0, 255));
+    cv::imshow("Crop region", _frame);
+    cv::waitKey(5);
 
     for (; !frame.empty(); videoIn->read(frame)){
         cv::Mat cropped = frame(cropRegion), croppedGrey = cv::Mat();
