@@ -16,6 +16,16 @@ void analyze(cv::Mat frame, cv::Size newSize){
     cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
     cv::imshow("Resized", resized);
     cv::waitKey(5);
+ 
+    cv::Mat thresholded;
+    std::cout << resized.channels();
+    cv::adaptiveThreshold(resized, thresholded, 255,
+        cv::ADAPTIVE_THRESH_GAUSSIAN_C, //Method
+        cv::THRESH_BINARY, //Threshold type
+        3, -5 //Block size and constant
+    );
+    cv::imshow("Thresholded", thresholded);
+    cv::waitKey(5);
 
     cv::Mat foundCircles;
     cv::cvtColor(resized, foundCircles, cv::COLOR_GRAY2BGR);
@@ -24,7 +34,7 @@ void analyze(cv::Mat frame, cv::Size newSize){
     cv::HoughCircles(resized, circles, cv::HOUGH_GRADIENT, 1,
         10, //minimum distance between bubbles (pixels)
         300, 0.95, //parameters
-        1, 15 //Min and max bubble size (pixels)
+        1, 10 //Min and max bubble size (pixels)
     );
     if (circles.size() == 0){
         std::cout << ", found no circles" << std::endl;
@@ -38,7 +48,7 @@ void analyze(cv::Mat frame, cv::Size newSize){
         cv::circle(foundCircles, center, radius, cv::Scalar(0, 0, 255));
     }
     cv::imshow("Found circles", foundCircles);
-    cv::waitKey(1000);
+    cv::waitKey(10000);
 }
 
 void BubbleCounter::run(cv::VideoCapture* videoIn){
