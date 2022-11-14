@@ -7,14 +7,38 @@
 #include <map>
 
 void analyze(cv::Mat frame, cv::Size newSize){
-    std::cout << "analyze called" << std::endl;
+    std::cout << "analyze called";
     cv::imshow("Frame", frame);
     cv::waitKey(5);
 
     cv::Mat resized;
     cv::resize(frame, resized, newSize, 0, 0, cv::INTER_AREA);
+    cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
     cv::imshow("Resized", resized);
-    cv::waitKey(10000); //Hold frame for 10 seconds
+    cv::waitKey(5);
+
+    cv::Mat foundCircles;
+    cv::cvtColor(resized, foundCircles, cv::COLOR_GRAY2BGR);
+    std::vector<cv::Vec3f> circles;
+
+    cv::HoughCircles(resized, circles, cv::HOUGH_GRADIENT, 1,
+        10, //minimum distance between bubbles (pixels)
+        300, 0.95, //parameters
+        1, 15 //Min and max bubble size (pixels)
+    );
+    if (circles.size() == 0){
+        std::cout << ", found no circles" << std::endl;
+        return;
+    }
+
+    std::cout << ", found " << circles.size() << " circles" << std::endl;
+    for (cv::Vec3f circle : circles){
+        cv::Point center(circle[0], circle[1]);
+        int radius = circle[2];
+        cv::circle(foundCircles, center, radius, cv::Scalar(0, 0, 255));
+    }
+    cv::imshow("Found circles", foundCircles);
+    cv::waitKey(1000);
 }
 
 void BubbleCounter::run(cv::VideoCapture* videoIn){
