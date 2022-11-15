@@ -15,8 +15,8 @@ void showOverlay(cv::Mat frame, cv::Mat mask){
     cv::waitKey(5);
 }
 
-std::vector<cv::Vec3f> method1(cv::Mat frame){
-    cv::Mat thresholded;
+std::vector<cv::Vec3f> method1(std::vector<cv::Mat> frames){
+    cv::Mat thresholded, frame = frames.back();
     std::vector<cv::Vec3f> circles;
 
     cv::adaptiveThreshold(frame, thresholded, 255,
@@ -38,8 +38,8 @@ std::vector<cv::Vec3f> method1(cv::Mat frame){
     return circles;
 }
 
-std::vector<cv::Vec3f> method2(cv::Mat frame){
-    cv::Mat thresholded;
+std::vector<cv::Vec3f> method2(std::vector<cv::Mat> frames){
+    cv::Mat thresholded, frame = frames.back();
     std::vector<cv::Vec3f> circles;
 
     uint8_t meanBrightness = cv::mean(frame)[0];
@@ -55,8 +55,8 @@ std::vector<cv::Vec3f> method2(cv::Mat frame){
     return circles;
 }
 
-std::vector<cv::Vec3f> method3(cv::Mat frame){
-    cv::Mat canny;
+std::vector<cv::Vec3f> method3(std::vector<cv::Mat> frames){
+    cv::Mat canny, frame = frames.back();
     std::vector<cv::Vec3f> circles;
 
     uint8_t mean = cv::mean(frame)[0];
@@ -74,46 +74,39 @@ std::vector<cv::Vec3f> method3(cv::Mat frame){
     return circles;
 }
 
-/*
+std::vector<cv::Vec3f> method4(std::vector<cv::Mat> frames){
+    cv::Mat diff;
+    std::vector<cv::Vec3f> circles;
+    cv::absdiff(frames[1], frames[0], diff);
 
-//Settings for blob detector
-cv::SimpleBlobDetector::Params params;
-params.filterByColor = true;
-params.blobColor = 0;
+    cv::imshow("Frame diff", diff);
+    cv::waitKey(5);
 
-params.minThreshold = 50;
-params.maxThreshold = 255;
+    return circles;
+}
 
-params.minDistBetweenBlobs = 5;
-
-params.filterByArea = true;
-params.minArea = 5;
-params.maxArea = 300;
-
-params.filterByConvexity = true;
-params.minConvexity = 0;
-
-params.filterByCircularity = true;
-params.minCircularity = 0.1;
-
-params.filterByInertia = false;
-
-*/
-
-void analyze(cv::Mat frame, cv::Size newSize) {
+void analyze(std::vector<cv::Mat> frames, cv::Size newSize) {
     std::cout << "analyze called";
-    cv::imshow("Frame", frame);
+    cv::imshow("Frame", frames.back());
     cv::waitKey(5);
 
-    cv::Mat resized;
-    cv::resize(frame, resized, newSize, 0, 0, cv::INTER_AREA);
-    cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
-    cv::imshow("Resized", resized);
-    cv::waitKey(5);
+    std::vector<cv::Mat> resizedFrames;
+    int i = 1;
+    for (cv::Mat frame : frames) {
+        cv::Mat resized;
+        cv::resize(frame, resized, newSize, 0, 0, cv::INTER_AREA);
+        cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
+        resizedFrames.push_back(resized);
+        char str[50];
+        sprintf(str, "Resized %d", i);
+        cv::imshow(str, resized);
+        cv::waitKey(5);
+        i++;
+    }
 
     cv::Mat foundCircles;
-    cv::cvtColor(resized, foundCircles, cv::COLOR_GRAY2BGR);
-    std::vector<cv::Vec3f> circles = method1(resized); //Change which method is used here
+    cv::cvtColor(resizedFrames.back(), foundCircles, cv::COLOR_GRAY2BGR);
+    std::vector<cv::Vec3f> circles = method4(resizedFrames); //Change which method is used here
 
     std::cout << ", found " << circles.size() << " circles" << std::endl;
     for (cv::Vec3f circle : circles){
@@ -138,6 +131,8 @@ void BubbleCounter::run(cv::VideoCapture* videoIn) {
     std::cout << "Interval is " << interval << " frames" << std::endl;
 
     cv::Mat frame;
+    std::vector<cv::Mat> frames;
+    const int frameCount = 2;
     videoIn->read(frame);
     const std::map<int, int> widthMap = {{546, 512}, {2184, 256}, {8736, 128}};
     int newWidth = widthMap.at(totalFrames);
@@ -145,9 +140,13 @@ void BubbleCounter::run(cv::VideoCapture* videoIn) {
     cv::Size newSize(newWidth, newHeight);
 
     for (; !frame.empty() && analyzeCounter < analyzeTotal; videoIn->read(frame)) {
+        if (frames.size() == frameCount)
+            frames.erase(frames.begin());
+        frames.push_back(frame.clone());
+        
         if (frameCounter % interval == 0) {
             std::cout << "Frame " << frameCounter << ", ";
-            analyze(frame, newSize);
+            analyze(frames, newSize);
             analyzeCounter++;
         }
         frameCounter++;
