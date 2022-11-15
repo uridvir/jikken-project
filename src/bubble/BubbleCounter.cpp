@@ -1,12 +1,59 @@
 #include "BubbleCounter.h"
 
 #include <iostream>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-
 #include <map>
+#include <opencv2/features2d.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
-void analyze(cv::Mat frame, cv::Size newSize){
+std::vector<cv::Vec3f> method1(cv::Mat frame){
+    cv::Mat thresholded;
+    std::vector<cv::Vec3f> circles;
+
+    cv::adaptiveThreshold(frame, thresholded, 255,
+        cv::ADAPTIVE_THRESH_GAUSSIAN_C, //Method
+        cv::THRESH_BINARY_INV, //Threshold type
+        7, 7 //Block size and constant
+    );
+    cv::imshow("Thresholded", thresholded);
+    cv::waitKey(5);
+
+    cv::HoughCircles(frame, circles, cv::HOUGH_GRADIENT, 1,
+        10, //minimum distance between bubbles (pixels)
+        300, 0.95, //parameters
+        1, 10 //Min and max bubble size (pixels)
+    );
+
+    return circles;
+}
+
+/*
+
+//Settings for blob detector
+cv::SimpleBlobDetector::Params params;
+params.filterByColor = true;
+params.blobColor = 0;
+
+params.minThreshold = 50;
+params.maxThreshold = 255;
+
+params.minDistBetweenBlobs = 5;
+
+params.filterByArea = true;
+params.minArea = 5;
+params.maxArea = 300;
+
+params.filterByConvexity = true;
+params.minConvexity = 0;
+
+params.filterByCircularity = true;
+params.minCircularity = 0.1;
+
+params.filterByInertia = false;
+
+*/
+
+void analyze(cv::Mat frame, cv::Size newSize) {
     std::cout << "analyze called";
     cv::imshow("Frame", frame);
     cv::waitKey(5);
@@ -16,30 +63,10 @@ void analyze(cv::Mat frame, cv::Size newSize){
     cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
     cv::imshow("Resized", resized);
     cv::waitKey(5);
- 
-    cv::Mat thresholded;
-    std::cout << resized.channels();
-    cv::adaptiveThreshold(resized, thresholded, 255,
-        cv::ADAPTIVE_THRESH_GAUSSIAN_C, //Method
-        cv::THRESH_BINARY, //Threshold type
-        3, -5 //Block size and constant
-    );
-    cv::imshow("Thresholded", thresholded);
-    cv::waitKey(5);
 
     cv::Mat foundCircles;
     cv::cvtColor(resized, foundCircles, cv::COLOR_GRAY2BGR);
-    std::vector<cv::Vec3f> circles;
-
-    cv::HoughCircles(resized, circles, cv::HOUGH_GRADIENT, 1,
-        10, //minimum distance between bubbles (pixels)
-        300, 0.95, //parameters
-        1, 10 //Min and max bubble size (pixels)
-    );
-    if (circles.size() == 0){
-        std::cout << ", found no circles" << std::endl;
-        return;
-    }
+    std::vector<cv::Vec3f> circles = method1(resized);
 
     std::cout << ", found " << circles.size() << " circles" << std::endl;
     for (cv::Vec3f circle : circles){
@@ -51,12 +78,12 @@ void analyze(cv::Mat frame, cv::Size newSize){
     cv::waitKey(10000);
 }
 
-void BubbleCounter::run(cv::VideoCapture* videoIn){
+void BubbleCounter::run(cv::VideoCapture* videoIn) {
     const int analyzeTotal = 10;
 
-    //TODO: FIX THIS
-    //int totalFrames = videoIn->get(cv::CAP_PROP_FRAME_COUNT);
-    int totalFrames = 2184; //Hack because frame count isn't working right now
+    // TODO: FIX THIS
+    // int totalFrames = videoIn->get(cv::CAP_PROP_FRAME_COUNT);
+    int totalFrames = 2184;  // Hack because frame count isn't working right now
 
     int interval = totalFrames / analyzeTotal;
     int frameCounter = 1, analyzeCounter = 0;
@@ -71,11 +98,11 @@ void BubbleCounter::run(cv::VideoCapture* videoIn){
     cv::Size newSize(newWidth, newHeight);
 
     for (; !frame.empty() && analyzeCounter < analyzeTotal; videoIn->read(frame)) {
-        if (frameCounter % interval == 0){
+        if (frameCounter % interval == 0) {
             std::cout << "Frame " << frameCounter << ", ";
             analyze(frame, newSize);
             analyzeCounter++;
-        } 
+        }
         frameCounter++;
     }
 }
