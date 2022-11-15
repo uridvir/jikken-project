@@ -6,6 +6,15 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
+void showOverlay(cv::Mat frame, cv::Mat mask){
+    cv::Mat overlay;
+    cv::cvtColor(frame, overlay, cv::COLOR_GRAY2BGR);
+    overlay.setTo(cv::Scalar(255, 0, 0), mask);
+
+    cv::imshow("Overlay", overlay);
+    cv::waitKey(5);
+}
+
 std::vector<cv::Vec3f> method1(cv::Mat frame){
     cv::Mat thresholded;
     std::vector<cv::Vec3f> circles;
@@ -13,10 +22,12 @@ std::vector<cv::Vec3f> method1(cv::Mat frame){
     cv::adaptiveThreshold(frame, thresholded, 255,
         cv::ADAPTIVE_THRESH_GAUSSIAN_C, //Method
         cv::THRESH_BINARY_INV, //Threshold type
-        7, 7 //Block size and constant
+        9, 5 //Block size and constant
     );
     cv::imshow("Thresholded", thresholded);
     cv::waitKey(5);
+
+    showOverlay(frame, thresholded);
 
     cv::HoughCircles(frame, circles, cv::HOUGH_GRADIENT, 1,
         10, //minimum distance between bubbles (pixels)
@@ -40,6 +51,25 @@ std::vector<cv::Vec3f> method2(cv::Mat frame){
 
     cv::imshow("Thresholded", thresholded);
     cv::waitKey(5);
+
+    return circles;
+}
+
+std::vector<cv::Vec3f> method3(cv::Mat frame){
+    cv::Mat canny;
+    std::vector<cv::Vec3f> circles;
+
+    uint8_t mean = cv::mean(frame)[0];
+    double sigma = 0.33;
+
+    double lower = std::max(0.0, (1 - sigma) * mean);
+    double upper = std::min(255.0, (1 + sigma) * mean);
+    cv::Canny(frame, canny, lower, upper);
+
+    cv::imshow("Canny", canny);
+    cv::waitKey(5);
+
+    showOverlay(frame, canny);
 
     return circles;
 }
