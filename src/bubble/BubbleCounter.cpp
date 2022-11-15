@@ -27,6 +27,23 @@ std::vector<cv::Vec3f> method1(cv::Mat frame){
     return circles;
 }
 
+std::vector<cv::Vec3f> method2(cv::Mat frame){
+    cv::Mat thresholded;
+    std::vector<cv::Vec3f> circles;
+
+    uint8_t meanBrightness = cv::mean(frame)[0];
+    cv::threshold(frame, thresholded,
+        meanBrightness * 1.00, //The threshold
+        0, //Max value
+        cv::THRESH_TOZERO //Threshold type
+    );
+
+    cv::imshow("Thresholded", thresholded);
+    cv::waitKey(5);
+
+    return circles;
+}
+
 /*
 
 //Settings for blob detector
@@ -66,7 +83,7 @@ void analyze(cv::Mat frame, cv::Size newSize) {
 
     cv::Mat foundCircles;
     cv::cvtColor(resized, foundCircles, cv::COLOR_GRAY2BGR);
-    std::vector<cv::Vec3f> circles = method1(resized);
+    std::vector<cv::Vec3f> circles = method1(resized); //Change which method is used here
 
     std::cout << ", found " << circles.size() << " circles" << std::endl;
     for (cv::Vec3f circle : circles){
