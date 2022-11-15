@@ -97,6 +97,11 @@ std::vector<cv::Vec3f> method4(std::vector<cv::Mat> frames){
     return circles;
 }
 
+std::vector<cv::Vec3f> method5(std::vector<cv::Mat> frames){
+    //TODO: Write a copy of method4 that uses Canny on a single frame,
+    //rather than frame differencing
+}
+
 void analyze(std::vector<cv::Mat> frames, cv::Size newSize) {
     std::cout << "analyze called";
     cv::imshow("Frame", frames.back());
