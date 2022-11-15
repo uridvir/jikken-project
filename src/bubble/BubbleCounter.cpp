@@ -82,6 +82,18 @@ std::vector<cv::Vec3f> method4(std::vector<cv::Mat> frames){
     cv::imshow("Frame diff", diff);
     cv::waitKey(5);
 
+    cv::Mat blur, thresh, dilated;
+    cv::GaussianBlur(diff, blur, cv::Size(5, 5), 0);
+    cv::threshold(blur, thresh, 30, 255, cv::THRESH_BINARY);
+    cv::dilate(thresh, dilated, 
+        cv::Mat(), cv::Point(-1, -1), //Defaults
+        3 //Iterations
+    );
+
+    cv::imshow("Dilated", dilated);
+    cv::waitKey(5);
+    showOverlay(frames[1], dilated);
+
     return circles;
 }
 
