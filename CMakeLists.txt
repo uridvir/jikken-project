@@ -36,3 +36,11 @@ include_directories(${serialib_SOURCE_DIR}/lib)
 add_library(serialib ${serialib_SOURCE_DIR}/lib/serialib.cpp)
 
 add_subdirectory(src)
+
+set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR})
+install(TARGETS
+    jikken
+    video-clean
+    bubble-count
+CONFIGURATIONS Release #Only deploy in "Release" mode
+RUNTIME DESTINATION bin)
