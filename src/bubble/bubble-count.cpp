@@ -14,7 +14,7 @@ int main(int argc, char* argv[]){
     std::string videoFilename(argv[1]);
     cv::VideoCapture videoIn(videoFilename);
 
-    BubbleCounter::run(&videoIn);
+    BubbleCounter::run(videoIn);
     videoIn.release();
 
     return 0;

@@ -3,5 +3,5 @@
 
 class BubbleCounter {
     public:
-    static void run(cv::VideoCapture* videoIn);
+    static void run(cv::VideoCapture& videoIn);
 };
