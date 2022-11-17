@@ -23,7 +23,7 @@ int main(int argc, char* argv[]){
     cv::VideoCapture videoIn(videoFilename);
 
     cv::VideoWriter videoOut = getWriter(videoFilename);
-    VideoCleaner::run(&videoIn, &videoOut, checkTextRemove(videoFilename));
+    VideoCleaner::run(videoIn, videoOut, checkTextRemove(videoFilename));
     videoIn.release();
     videoOut.release();
 

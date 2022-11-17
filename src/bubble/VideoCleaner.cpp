@@ -17,16 +17,16 @@ cv::Size VideoCleaner::getOutSize(bool removeText){
     return size;
 }
 
-cv::Mat greycrop(cv::Mat frame, cv::Rect cropRegion){
-    cv::Mat cropped = frame(cropRegion), croppedGrey = cv::Mat();
-    cv::cvtColor(cropped, croppedGrey, cv::COLOR_BGR2GRAY);
-    return croppedGrey;
+cv::Mat greycrop(cv::Mat& frame, cv::Rect& cropRegion){
+    cv::Mat cropped = frame(cropRegion), greycropped = cv::Mat();
+    cv::cvtColor(cropped, greycropped, cv::COLOR_BGR2GRAY);
+    return greycropped;
 }
 
 //Return true if mats are different enough
-bool matDiffCheck(cv::Mat* mat1, cv::Mat* mat2){
+bool matDiffCheck(cv::Mat& mat1, cv::Mat& mat2){
     cv::Mat resultMatrix;
-    cv::matchTemplate(*mat1, *mat2, resultMatrix, cv::TM_SQDIFF_NORMED);
+    cv::matchTemplate(mat1, mat2, resultMatrix, cv::TM_SQDIFF_NORMED);
 
     float resultFloat = resultMatrix.at<float>(0, 0);
     const float threshold = 0.01;
@@ -44,10 +44,43 @@ bool shouldCheckEnd(int frameNum){
     return false;
 }
 
-size_t searchBuffer(std::vector<cv::Mat>* buffer, cv::Mat* greyCropped1, 
-                        std::map<size_t, cv::Mat>* buffMap, cv::Rect cropRegion);
+/**
+ * Keeps track of uncropped frame buffer, and caches the greycropped frames.
+ * So, if a greycropped frame is required, greycropping only needs to happen once.
+*/
+class GreycropBufferCache {
+    public:
+    GreycropBufferCache(size_t size, cv::Rect& rect) {
+        rawBuffer.reserve(size); 
+        cropRegion = rect; 
+    }
 
-void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, bool removeText) {
+    //Vector functions
+    size_t size(){ return rawBuffer.size(); }
+    void push_back(cv::Mat& frame){ rawBuffer.push_back(frame); }
+    void clear(){ rawBuffer.clear(); }
+
+    //Caching
+    cv::Mat greycropAt(size_t index){
+        if (greycrops.count(index) == 1)
+            return greycrops.at(index);
+        
+        cv::Mat greycropped = greycrop(rawBuffer[index], cropRegion);
+        greycrops.insert({index, greycropped});
+        return greycropped;
+    }
+
+    cv::Mat uncroppedAt(size_t index) { return rawBuffer[index]; }
+
+    private:
+    std::vector<cv::Mat> rawBuffer;
+    std::map<size_t, cv::Mat> greycrops;
+    cv::Rect cropRegion;
+};
+
+size_t searchBuffer(GreycropBufferCache& cache, cv::Mat& greycropped1);
+
+void VideoCleaner::run(cv::VideoCapture& videoIn, cv::VideoWriter& videoOut, bool removeText) {
     // Video crop changes if there is text
     cv::Rect cropRegion;
     if (removeText)
@@ -56,7 +89,7 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
         cropRegion = cv::Rect(XCROP / 2, 0, VIDX - XCROP, VIDY);
 
     cv::Mat frame, prev;
-    videoIn->read(frame);
+    videoIn.read(frame);
     if (frame.cols != VIDX || frame.rows != VIDY) {
         std::cerr << "Video size is wrong! Must be " << VIDX << "x" << VIDY << "." << std::endl;
         std::cerr << "ビデオサイズが違います！正解のサイズが" << VIDX << "x" << VIDY << "である。" << std::endl;
@@ -78,12 +111,10 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
      */
 
     int step = 1, frameNum = 1, absFrameNum = 1;
-    cv::Mat croppedGrey, croppedGrey1;
+    cv::Mat greycropped, greycropped1;
     
-    std::vector<cv::Mat> checkBuffer;
-    const size_t bufferMax = 64; // The "step size" for finding frame 2
-    checkBuffer.reserve(bufferMax);
-    std::map<size_t, cv::Mat> buffMap; //Store frames we have already greycropped
+    const size_t bufferSize = 64; // The "step size" for finding frame 2
+    GreycropBufferCache bc(bufferSize, cropRegion);
     /**
      * Every time the buffer fills up, see if we've passed the frame 1
      * duplicates. In that case, the first non-duplicate (frame 2) is
@@ -93,41 +124,36 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
      * at the end.
     */
 
-    for (; !frame.empty(); videoIn->read(frame)) {
+    for (; !frame.empty(); videoIn.read(frame)) {
         absFrameNum++;
 
         switch (step) {
             case 1:
-                croppedGrey1 = greycrop(frame, cropRegion);
-                videoOut->write(croppedGrey1);
+                greycropped1 = greycrop(frame, cropRegion);
+                videoOut.write(greycropped1);
                 step = 2;
                 break;
             case 2:
-                if (checkBuffer.size() < bufferMax)
-                    checkBuffer.push_back(frame.clone());
-                if (checkBuffer.size() != bufferMax) break;
+                if (bc.size() < bufferSize)
+                    bc.push_back(frame.clone());
+                if (bc.size() != bufferSize) break;
 
-                croppedGrey = greycrop(frame, cropRegion);
-                buffMap.insert({bufferMax - 1, croppedGrey});
-                if (matDiffCheck(&croppedGrey, &croppedGrey1)){
-                    size_t f2i = searchBuffer(&checkBuffer, &croppedGrey1, &buffMap, cropRegion);
-                    for (size_t i = f2i; i < bufferMax; i++){
-                        if (buffMap.count(i) != 0)
-                            videoOut->write(buffMap[i]);
-                        else
-                            videoOut->write(greycrop(checkBuffer[i], cropRegion));
-                    }
-                    frameNum += bufferMax - f2i;
+                greycropped = bc.greycropAt(bufferSize - 1);
+                if (matDiffCheck(greycropped, greycropped1)){
+                    size_t f2i = searchBuffer(bc, greycropped1);
+                    for (size_t i = f2i; i < bufferSize; i++)
+                        videoOut.write(bc.greycropAt(i));
+                    frameNum += bufferSize - f2i;
                     step = 3;
-                    std::cout << "Found frame 2! Absolute position " << absFrameNum - bufferMax + f2i << std::endl;
-                    cv::imshow("Frame 2", checkBuffer[f2i]);
+                    std::cout << "Found frame 2! Absolute position " << absFrameNum - bufferSize + f2i << std::endl;
+                    cv::imshow("Frame 2", bc.uncroppedAt(f2i));
                     cv::waitKey(5);
                 }
-                checkBuffer.clear();
+                bc.clear();
                 break;
             case 3:
-                croppedGrey = greycrop(frame, cropRegion);
-                if (shouldCheckEnd(frameNum) && !matDiffCheck(&croppedGrey, &croppedGrey1)){
+                greycropped = greycrop(frame, cropRegion);
+                if (shouldCheckEnd(frameNum) && !matDiffCheck(greycropped, greycropped1)){
                     std::cout << "Wrote " << frameNum << " frames." << std::endl;
                     cv::imshow(std::string("Frame " + std::to_string(frameNum)), prev); 
                     cv::imshow(std::string("Frame " + std::to_string(frameNum + 1)), frame);
@@ -135,7 +161,7 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
                     return;
                 }
                 else {
-                    videoOut->write(croppedGrey);
+                    videoOut.write(greycropped);
                     frameNum++;
                 }
         }
@@ -147,12 +173,11 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
         std::cerr << "Could not locate loop-to-start! No final frame found. Wrote " << frameNum << " frames." << std::endl;
 }
 
-size_t searchBuffer(std::vector<cv::Mat>* buffer, cv::Mat* greyCropped1, 
-                        std::map<size_t, cv::Mat>* buffMap, cv::Rect cropRegion){
+size_t searchBuffer(GreycropBufferCache& bc, cv::Mat& greycropped1){
     //Perform binary search
 
     size_t window_start = 0;
-    size_t window_size = buffer->size() / 2;
+    size_t window_size = bc.size() / 2;
 
     /**
      * There are two windows, left and right.
@@ -165,15 +190,10 @@ size_t searchBuffer(std::vector<cv::Mat>* buffer, cv::Mat* greyCropped1,
     */
     while (window_size != 0) {
         size_t index = window_start + window_size - 1;
-
-        cv::Mat frame = buffer->at(index);
-        cv::Mat croppedGrey = greycrop(frame, cropRegion);
-        buffMap->insert({index, croppedGrey.clone()});
-
-        if (!matDiffCheck(&croppedGrey, greyCropped1))
+        cv::Mat greycropped = bc.greycropAt(index);
+        if (!matDiffCheck(greycropped, greycropped1))
             window_start += window_size;
         window_size = window_size / 2;
     }
-
     return window_start;
 }
