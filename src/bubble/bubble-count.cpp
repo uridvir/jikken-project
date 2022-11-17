@@ -6,7 +6,7 @@
 int main(int argc, char* argv[]){
     if (argc != 2) {
         std::cerr << "bubble-count requires exactly one argument (a video file for counting). Please try again." << std::endl;
-        std::cerr << "video-cleanには、正一つコマンドライン引数が必要である"
+        std::cerr << "bubble-countには、正一つコマンドライン引数が必要である"
                   << "（数えるためのビデオファイル）。もう一度試してみてください。" << std::endl;
         return -1;
     }

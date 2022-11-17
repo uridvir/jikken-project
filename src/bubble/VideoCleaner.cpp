@@ -8,6 +8,7 @@
 #include <cmath>
 #include <map>
 
+//Size is for video writer
 cv::Size VideoCleaner::getOutSize(bool removeText){
     cv::Size size;
     size.width = VIDX - XCROP, size.height = VIDY;
@@ -23,13 +24,28 @@ cv::Mat greycrop(cv::Mat frame, cv::Rect cropRegion){
 }
 
 //Return true if mats are different enough
-bool matDiffCheck(cv::Mat* mat1, cv::Mat* mat2);
+bool matDiffCheck(cv::Mat* mat1, cv::Mat* mat2){
+    cv::Mat resultMatrix;
+    cv::matchTemplate(*mat1, *mat2, resultMatrix, cv::TM_SQDIFF_NORMED);
 
-size_t frame2Index(std::vector<cv::Mat>* buffer, cv::Mat* greyCropped1, 
-                        std::map<size_t, cv::Mat>* buffMap, cv::Rect cropRegion);
+    float resultFloat = resultMatrix.at<float>(0, 0);
+    const float threshold = 0.01;
+    return resultFloat > threshold;
+}
 
 //Only some frames should be checked for being the final frame
-bool shouldCheckEnd(int frameNum);
+bool shouldCheckEnd(int frameNum){
+    const std::set<int> validFrameCounts = {546, 2184, 8736}; //From Kodak Motion Corder manual, page 3.5
+    const int slop = 5; //Allow for a few skipped frames etc... video encoding is fucky lol
+
+    for (int frameCount : validFrameCounts)
+        if (std::abs(frameNum - frameCount) <= slop)
+            return true;
+    return false;
+}
+
+size_t searchBuffer(std::vector<cv::Mat>* buffer, cv::Mat* greyCropped1, 
+                        std::map<size_t, cv::Mat>* buffMap, cv::Rect cropRegion);
 
 void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, bool removeText) {
     // Video crop changes if there is text
@@ -39,7 +55,7 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
     else
         cropRegion = cv::Rect(XCROP / 2, 0, VIDX - XCROP, VIDY);
 
-    cv::Mat frame;
+    cv::Mat frame, prev;
     videoIn->read(frame);
     if (frame.cols != VIDX || frame.rows != VIDY) {
         std::cerr << "Video size is wrong! Must be " << VIDX << "x" << VIDY << "." << std::endl;
@@ -94,7 +110,7 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
                 croppedGrey = greycrop(frame, cropRegion);
                 buffMap.insert({bufferMax - 1, croppedGrey});
                 if (matDiffCheck(&croppedGrey, &croppedGrey1)){
-                    size_t f2i = frame2Index(&checkBuffer, &croppedGrey1, &buffMap, cropRegion);
+                    size_t f2i = searchBuffer(&checkBuffer, &croppedGrey1, &buffMap, cropRegion);
                     for (size_t i = f2i; i < bufferMax; i++){
                         if (buffMap.count(i) != 0)
                             videoOut->write(buffMap[i]);
@@ -104,6 +120,8 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
                     frameNum += bufferMax - f2i;
                     step = 3;
                     std::cout << "Found frame 2! Absolute position " << absFrameNum - bufferMax + f2i << std::endl;
+                    cv::imshow("Frame 2", checkBuffer[f2i]);
+                    cv::waitKey(5);
                 }
                 checkBuffer.clear();
                 break;
@@ -111,6 +129,9 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
                 croppedGrey = greycrop(frame, cropRegion);
                 if (shouldCheckEnd(frameNum) && !matDiffCheck(&croppedGrey, &croppedGrey1)){
                     std::cout << "Wrote " << frameNum << " frames." << std::endl;
+                    cv::imshow(std::string("Frame " + std::to_string(frameNum)), prev); 
+                    cv::imshow(std::string("Frame " + std::to_string(frameNum + 1)), frame);
+                    cv::waitKey(5000);
                     return;
                 }
                 else {
@@ -118,21 +139,15 @@ void VideoCleaner::run(cv::VideoCapture* videoIn, cv::VideoWriter* videoOut, boo
                     frameNum++;
                 }
         }
+        prev = frame.clone();
     }
     if (step == 2)
-        std::cerr << "Could not find frame 2! (frames are too similar)" << std::endl;
+        std::cerr << "Could not locate end of lead-in! No frame 2 found." << std::endl;
+    else if (step == 3)
+        std::cerr << "Could not locate loop-to-start! No final frame found. Wrote " << frameNum << " frames." << std::endl;
 }
 
-bool matDiffCheck(cv::Mat* mat1, cv::Mat* mat2){
-    cv::Mat resultMatrix;
-    cv::matchTemplate(*mat1, *mat2, resultMatrix, cv::TM_SQDIFF_NORMED);
-
-    float resultFloat = resultMatrix.at<float>(0, 0);
-    const float threshold = 0.01;
-    return resultFloat > threshold;
-}
-
-size_t frame2Index(std::vector<cv::Mat>* buffer, cv::Mat* greyCropped1, 
+size_t searchBuffer(std::vector<cv::Mat>* buffer, cv::Mat* greyCropped1, 
                         std::map<size_t, cv::Mat>* buffMap, cv::Rect cropRegion){
     //Perform binary search
 
@@ -161,14 +176,4 @@ size_t frame2Index(std::vector<cv::Mat>* buffer, cv::Mat* greyCropped1,
     }
 
     return window_start;
-}
-
-bool shouldCheckEnd(int frameNum){
-    const std::set<int> validFrameCounts = {546, 2184, 8736}; //From Kodak Motion Corder manual, page 3.5
-    const int slop = 2; //Allow for a few skipped frames etc... video encoding is fucky lol
-
-    for (int frameCount : validFrameCounts)
-        if (std::abs(frameNum - frameCount) <= slop)
-            return true;
-    return false;
 }

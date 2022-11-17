@@ -8,6 +8,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video/background_segm.hpp>
 
+
+
 void showOverlay(cv::Mat frame, cv::Mat mask, char* name = "Overlay", bool ungray = true){
     cv::Mat overlay;
     if (ungray) cv::cvtColor(frame, overlay, cv::COLOR_GRAY2BGR);
@@ -194,9 +196,7 @@ void analyze(std::vector<cv::Mat> frames, cv::Size newSize) {
         cv::resize(frame, resized, newSize, 0, 0, cv::INTER_AREA);
         cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
         resizedFrames.push_back(resized);
-        char str[50];
-        sprintf(str, "Resized %d", i);
-        cv::imshow(str, resized);
+        cv::imshow(std::string("Resized " + std::to_string(i)), resized);
         cv::waitKey(5);
         i++;
     }
@@ -215,29 +215,46 @@ void analyze(std::vector<cv::Mat> frames, cv::Size newSize) {
     cv::waitKey(100000);
 }
 
+int getWidth(int frameCount){
+    const std::set<int> validFrameCounts = {546, 2184, 8736}; //From Kodak Motion Corder manual, page 3.5
+    const std::map<int, int> widthMap = {{546, 512}, {2184, 256}, {8736, 128}};
+    const int slop = 5; //Allow for a few skipped frames etc... video encoding is fucky lol
+
+    for (int valid : validFrameCounts)
+        if (std::abs(frameCount - valid) <= slop)
+            return widthMap.at(valid);
+    
+    std::cerr << "Invalid frame count! Cannot pick frame width." << std::endl;
+    return -1;
+}
+
 void BubbleCounter::run(cv::VideoCapture* videoIn) {
     const int analyzeTotal = 10;
 
-    // TODO: FIX THIS
-    // int totalFrames = videoIn->get(cv::CAP_PROP_FRAME_COUNT);
-    int totalFrames = 2184;  // Hack because frame count isn't working right now
+    int frameCount = videoIn->get(cv::CAP_PROP_FRAME_COUNT);
+    if (frameCount == 0){
+        std::cerr << "Invalid frame count of 0! Please check that the video file is not corrupted." << std::endl;
+        std::cerr << "大変！ビデオで０フレームがあります。bubble-countには、壊れないファイルをあげてください。" << std::endl;
+        return;
+    }
 
-    int interval = totalFrames / analyzeTotal;
+    int interval = frameCount / analyzeTotal;
     int frameCounter = 1, analyzeCounter = 0;
 
     std::cout << "Interval is " << interval << " frames" << std::endl;
 
-    cv::Mat frame;
+    const int frameBufferSize = 15;
     std::vector<cv::Mat> frames;
-    const int frameCount = 15;
+    
+    cv::Mat frame;
     videoIn->read(frame);
-    const std::map<int, int> widthMap = {{546, 512}, {2184, 256}, {8736, 128}};
-    int newWidth = widthMap.at(totalFrames);
+    
+    int newWidth = getWidth(frameCount);
     int newHeight = frame.rows * newWidth / frame.cols;
     cv::Size newSize(newWidth, newHeight);
 
     for (; !frame.empty() && analyzeCounter < analyzeTotal; videoIn->read(frame)) {
-        if (frames.size() == frameCount)
+        if (frames.size() == frameBufferSize)
             frames.erase(frames.begin());
         frames.push_back(frame.clone());
         
