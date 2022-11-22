@@ -9,6 +9,18 @@
 #include <set>
 
 /**
+ * Helper functions
+*/
+
+cv::Mat upscale(cv::Mat& frame) {
+    cv::Mat upscaled;
+    int newWidth = 512;
+    int newHeight = frame.rows * newWidth / frame.cols;
+    cv::resize(frame, upscaled, cv::Size(newWidth, newHeight));
+    return upscaled;
+}
+
+/**
  * Algorithm top level
  */
 
@@ -56,9 +68,9 @@ cv::Mat getShapes(std::vector<cv::Mat>& frames) {
     cv::GaussianBlur(diff, blur, cv::Size(5, 5), 0);
     cv::threshold(blur, thresh, 10, 255, cv::THRESH_BINARY);
 
-    //cv::imshow("Diff", diff);
-    //cv::imshow("Mask", thresh);
-    //cv::waitKey(5);
+    //cv::imshow("Diff", upscale(diff));
+    //cv::imshow("Shapes", upscale(thresh));
+    cv::waitKey(5);
 
     return thresh;
 }
@@ -152,6 +164,7 @@ std::vector<cv::Vec3f> getCircles(ComponentInfo& ci) {
     return circles;
 }
 
+//Find largest acceptable radius which does not collide with background
 int searchRadius(cv::Mat& background, cv::Point center, int maxRadius) {
     // Perform binary search
     int lower = 0, upper = maxRadius;
@@ -169,7 +182,6 @@ int searchRadius(cv::Mat& background, cv::Point center, int maxRadius) {
             lower = radius;
     }
 
-    cv::circle(background, center, lower, cv::Scalar(255), -1);
     return lower;
 }
 
@@ -181,14 +193,20 @@ void addSimpleBubbleCircle(std::vector<cv::Vec3f>& circles, ComponentInfo& ci, i
     int cx = ci.centroids.at<double>(label, 0);
     int cy = ci.centroids.at<double>(label, 1);
 
+    //For simple shapes, don't check boundary
+    cv::Mat background;
+    cv::bitwise_not(ci.components[0], background);
+    cv::bitwise_xor(background, ci.components[label], background);
+
     //Squeeze radius to conform to existing circles
-    int sqRad = searchRadius(ci.components[0], cv::Point(cx, cy), radius);
+    int sqRad = searchRadius(background, cv::Point(cx, cy), radius);
     if (sqRad == 0) return;
 
     circles.push_back(cv::Vec3f(cx, cy, sqRad));
 }
 
 void addComplexBubbleCircles(std::vector<cv::Vec3f>& circles, ComponentInfo& ci, int label) {
+    //For complex shapes, check the boundary
     cv::Mat background = ci.components[0];
 
     int bbw = ci.stats.at<int>(label, cv::CC_STAT_WIDTH);
@@ -199,15 +217,8 @@ void addComplexBubbleCircles(std::vector<cv::Vec3f>& circles, ComponentInfo& ci,
         int radius = searchRadius(background, spot, maxRadius);
         if (radius == 0) continue;
         circles.push_back(cv::Vec3f(spot.x, spot.y, radius));
+        cv::circle(background, spot, radius, cv::Scalar(255), -1);
     }
-}
-
-cv::Mat upscale(cv::Mat& frame) {
-    cv::Mat upscaled;
-    int newWidth = 512;
-    int newHeight = frame.rows * newWidth / frame.cols;
-    cv::resize(frame, upscaled, cv::Size(newWidth, newHeight));
-    return upscaled;
 }
 
 void showOverlay(cv::Mat& frame, cv::Mat& shapes, ComponentInfo& ci) {
