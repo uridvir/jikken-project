@@ -56,9 +56,9 @@ cv::Mat getShapes(std::vector<cv::Mat>& frames) {
     cv::GaussianBlur(diff, blur, cv::Size(5, 5), 0);
     cv::threshold(blur, thresh, 10, 255, cv::THRESH_BINARY);
 
-    cv::imshow("Diff", diff);
-    cv::imshow("Mask", thresh);
-    cv::waitKey(5);
+    //cv::imshow("Diff", diff);
+    //cv::imshow("Mask", thresh);
+    //cv::waitKey(5);
 
     return thresh;
 }
@@ -88,8 +88,8 @@ std::vector<cv::Point> getBrightSpots(cv::Mat& frame, bool adaptive, int dilateI
         spots.push_back(cv::Point(br.x + br.width / 2, br.y + br.height / 2));
     }
 
-    cv::imshow("spots precontour", precontour);
-    cv::waitKey(5);
+    //cv::imshow("spots precontour", precontour);
+    //cv::waitKey(5);
 
     return spots;
 }
@@ -245,8 +245,8 @@ void analyze(std::vector<cv::Mat>& frames, cv::Size newSize) {
         cv::resize(frame, resized, newSize, 0, 0, cv::INTER_AREA);
         cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
         resizedFrames.push_back(resized);
-        cv::imshow(std::string("Resized " + std::to_string(i)), resized);
-        cv::waitKey(5);
+        //cv::imshow(std::string("Resized " + std::to_string(i)), resized);
+        //cv::waitKey(5);
         i++;
     }
 
