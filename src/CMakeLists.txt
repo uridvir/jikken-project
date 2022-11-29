@@ -7,6 +7,7 @@ target_link_libraries(jikken
     ${OpenCV_LIBS}
     serialib
     jikken-gui
+    wxImagePanel
 )
 
 add_executable(video_test video_test.cpp)

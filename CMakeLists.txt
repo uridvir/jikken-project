@@ -30,10 +30,24 @@ FetchContent_Declare(
     GIT_REPOSITORY  https://github.com/imabot2/serialib.git
     GIT_TAG         57e817cebec10dede3cb70006886269f9c7809cc #latest version as of 11/2/2022
 )
-FetchContent_MakeAvailable(serialib)
+FetchContent_Declare(
+    wxImagePanel
+    GIT_REPOSITORY  https://github.com/tomay3000/wxImagePanel.git
+    GIT_TAG         34006f34e592f5578ec4758aeec2aaaba595af4c #latest version as of 11/29/2022
+)
+FetchContent_MakeAvailable(
+    serialib
+    wxImagePanel
+)
+
 FetchContent_GetProperties(serialib)
 include_directories(${serialib_SOURCE_DIR}/lib)
-add_library(serialib ${serialib_SOURCE_DIR}/lib/serialib.cpp)
+add_library(serialib OBJECT ${serialib_SOURCE_DIR}/lib/serialib.cpp)
+
+FetchContent_GetProperties(wxImagePanel)
+include_directories(${wximagepanel_SOURCE_DIR}) #Dependency name must be lowercase here
+add_library(wxImagePanel OBJECT ${wximagepanel_SOURCE_DIR}/imagepanel.cpp)
+# target_link_libraries(wxImagePanel wxWidgets)
 
 add_subdirectory(src)
 

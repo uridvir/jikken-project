@@ -11,6 +11,8 @@
 #include "ConfigPanel.h"
 #include "VideoPanel.h"
 #include "SettingsPanel.h"
+#include "DownloadPanel.h"
+#include "StatusPanel.h"
  
 class JikkenApp : public wxApp
 {
@@ -18,6 +20,8 @@ class JikkenApp : public wxApp
     ConfigPanel* configPanel;
     VideoPanel* videoPanel;
     SettingsPanel* settingsPanel;
+    DownloadPanel* downloadPanel;
+    StatusPanel* statusPanel;
 
 public:
     bool OnInit(){
@@ -26,11 +30,13 @@ public:
         configPanel = new ConfigPanel(frame);
         videoPanel = new VideoPanel(frame);
         settingsPanel = new SettingsPanel(frame);
+        downloadPanel = new DownloadPanel(frame);
+        statusPanel = new StatusPanel(frame);
 
         //Sizers
         wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(configPanel, 1, wxEXPAND);
-        //sizer->Add(videoPanel);
+        sizer->Add(configPanel, 0, wxEXPAND);
+        sizer->Add(videoPanel, 1, wxEXPAND);
         //sizer->Add(settingsPanel);
 
         //Set up frame
