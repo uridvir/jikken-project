@@ -31,17 +31,26 @@ public:
         videoPanel = new VideoPanel(frame);
         settingsPanel = new SettingsPanel(frame);
         downloadPanel = new DownloadPanel(frame);
-        statusPanel = new StatusPanel(frame);
+        statusPanel = new StatusPanel(frame); //TODO
 
         //Sizers
-        wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(configPanel, 0, wxEXPAND);
-        sizer->Add(videoPanel, 1, wxEXPAND);
-        //sizer->Add(settingsPanel);
+        wxBoxSizer* topSizer = new wxBoxSizer(wxHORIZONTAL);
+        topSizer->Add(configPanel, 0, wxEXPAND);
+        topSizer->AddSpacer(20);
+        topSizer->Add(videoPanel, 1, wxEXPAND);
+
+        wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
+        rightSizer->Add(settingsPanel, 1, wxEXPAND);
+        rightSizer->AddSpacer(10);
+        rightSizer->AddStretchSpacer(1);
+        rightSizer->Add(downloadPanel, 0, wxEXPAND);
+
+        topSizer->AddSpacer(20);
+        topSizer->Add(rightSizer, 1, wxEXPAND);
 
         //Set up frame
-        frame->SetSizer(sizer);
-        frame->SetMinClientSize(wxSize(250, 150));
+        frame->SetSizer(topSizer);
+        frame->SetMinClientSize(wxSize(700, 150));
         frame->Show(true);
         return true;
     }
