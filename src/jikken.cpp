@@ -40,10 +40,10 @@ public:
         topSizer->Add(videoPanel, 1, wxEXPAND);
 
         wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
-        rightSizer->Add(settingsPanel, 1, wxEXPAND);
+        rightSizer->Add(settingsPanel, 1, wxEXPAND | wxTOP);
         rightSizer->AddSpacer(10);
-        rightSizer->AddStretchSpacer(1);
-        rightSizer->Add(downloadPanel, 0, wxEXPAND);
+        // rightSizer->AddStretchSpacer(1);
+        rightSizer->Add(downloadPanel, 0, wxEXPAND | wxBOTTOM);
 
         topSizer->AddSpacer(20);
         topSizer->Add(rightSizer, 0, wxEXPAND);
