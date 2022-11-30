@@ -16,5 +16,5 @@ public:
 
     void setStatus(JikkenState state, bool alsoHasDownload = false);
 private:
-    wxWindow *off, *recReady, *recording, *readyToDownload, *downloading;
+    wxButton *off, *recReady, *recording, *readyToDownload, *downloading;
 };
