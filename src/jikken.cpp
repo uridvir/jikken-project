@@ -17,6 +17,7 @@
 class JikkenApp : public wxApp
 {
     JikkenFrame* frame;
+    wxPanel* topPanel;
     ConfigPanel* configPanel;
     VideoPanel* videoPanel;
     SettingsPanel* settingsPanel;
@@ -27,29 +28,43 @@ public:
     bool OnInit(){
         //Make elements
         frame = new JikkenFrame();
-        configPanel = new ConfigPanel(frame);
-        videoPanel = new VideoPanel(frame);
-        settingsPanel = new SettingsPanel(frame);
-        downloadPanel = new DownloadPanel(frame);
-        statusPanel = new StatusPanel(frame); //TODO
+        topPanel = new wxPanel(frame);
+        configPanel = new ConfigPanel(topPanel);
+        videoPanel = new VideoPanel(topPanel);
+        settingsPanel = new SettingsPanel(topPanel);
+        downloadPanel = new DownloadPanel(topPanel);
+        statusPanel = new StatusPanel(topPanel); //TODO
 
-        //Sizers
-        wxBoxSizer* topSizer = new wxBoxSizer(wxHORIZONTAL);
-        topSizer->Add(configPanel, 0, wxEXPAND);
-        topSizer->AddSpacer(20);
-        topSizer->Add(videoPanel, 1, wxEXPAND);
+        /**
+         * The window frame has one child, topPanel. So all the other
+         * panels are actually grandchildren of the frame.
+         * Having the top panel in between is more proper and it means
+         * that background colors all match.
+        */
+
+        //Panel sizers
+        wxBoxSizer* panelSizer = new wxBoxSizer(wxHORIZONTAL);
+        panelSizer->Add(configPanel, 0, wxEXPAND);
+        panelSizer->AddSpacer(20);
+        panelSizer->Add(videoPanel, 1, wxEXPAND);
 
         wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
         rightSizer->Add(settingsPanel, 1, wxEXPAND | wxTOP);
         rightSizer->AddSpacer(10);
-        // rightSizer->AddStretchSpacer(1);
         rightSizer->Add(downloadPanel, 0, wxEXPAND | wxBOTTOM);
 
-        topSizer->AddSpacer(20);
-        topSizer->Add(rightSizer, 0, wxEXPAND);
+        panelSizer->AddSpacer(20);
+        panelSizer->Add(rightSizer, 0, wxEXPAND);
+
+        //Set up top panel
+        topPanel->SetSizer(panelSizer);
+
+        //Frame sizer
+        wxBoxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
+        frameSizer->Add(topPanel, 1, wxEXPAND);
 
         //Set up frame
-        frame->SetSizer(topSizer);
+        frame->SetSizer(frameSizer);
         frame->SetMinClientSize(wxSize(700, 150));
         frame->Show(true);
         return true;
