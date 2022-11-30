@@ -46,7 +46,7 @@ public:
         wxBoxSizer* panelSizer = new wxBoxSizer(wxHORIZONTAL);
         panelSizer->Add(configPanel, 0, wxEXPAND);
         panelSizer->AddSpacer(20);
-        panelSizer->Add(videoPanel, 1, wxEXPAND);
+        panelSizer->Add(videoPanel, 1, wxSHAPED | wxEXPAND);
 
         wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
         rightSizer->Add(settingsPanel, 1, wxEXPAND | wxTOP);

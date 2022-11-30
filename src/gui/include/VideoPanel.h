@@ -13,9 +13,4 @@ class VideoPanel : public wxImagePanel
 public:
     VideoPanel(wxWindow* parent);
     void setImageMat(const cv::Mat& mat);
-    // void Refresh(bool, const wxRect*) override; //Override parent method to implement scaling how I want it
-private:
-    wxImage original;
-
-    // void createScaled();
 };

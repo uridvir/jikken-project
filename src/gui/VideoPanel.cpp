@@ -5,60 +5,24 @@
 #include <wx/sstream.h>
 #include <fstream>
 
-VideoPanel::VideoPanel(wxWindow* parent) : wxImagePanel(parent){
-    wxInitAllImageHandlers();
-    // StretchImage();
-    CenterImage();
+VideoPanel::VideoPanel(wxWindow* parent) : wxImagePanel(parent, wxID_ANY, wxDefaultPosition, wxSize(360, 240)){
+    wxInitAllImageHandlers(); //wxWidgets doesn't do this automatically for some reason??
+    StretchImage(); //Let image panel library do resizing
+    // SetMinSize(GetSize());
 
     //Initial image
     cv::Mat blueScreen(cv::Size(720, 480), CV_8UC3);
     blueScreen.setTo(cv::Scalar(255, 0, 0)); //OpenCV color order is Blue Green Red
-
-    // Layout();
 
     //Simply use the normal image set routine
     setImageMat(blueScreen);
 }
 
 void VideoPanel::setImageMat(const cv::Mat& mat){
+    //Convert from OpenCV's BGR to RGB
     cv::Mat rgb;
     cv::cvtColor(mat, rgb, cv::COLOR_BGR2RGB);
-    original = wxImage(mat.cols, mat.rows, rgb.data);
-
-    SetImage(original.Copy());
-    // createScaled();
-    // m_image = original.Copy();
-    
-    // std::vector<uchar> buffer(250 * 1024); //Reserve 250KB for PNG in memory
-    // cv::imencode(".png", mat, buffer);
-
-    // std::ofstream out("blue.png", std::ios::binary);
-    // out << std::string(buffer.begin(), buffer.end());
-    // out.close();
-
-    // // wxStringInputStream stream(std::string(buffer.begin(), buffer.end()));
-    // // LoadFile(stream, wxBITMAP_TYPE_PNG);
-
-    // LoadFile("blue.png", wxBITMAP_TYPE_PNG);
+    //Get wxImage directly from raw image
+    wxImage image = wxImage(mat.cols, mat.rows, rgb.data, true);
+    SetImage(image.Copy());
 }
-
-// void VideoPanel::Refresh(bool eraseBackground, const wxRect* rect) {
-//     //wxImagePanel::Refresh(eraseBackground, rect); //Call parent
-
-//     if (original.IsOk())
-//         createScaled(); //Scale first
-// }
-
-// void VideoPanel::createScaled(){
-//     int panelWidthI, panelHeightI;
-//     GetClientSize(&panelWidthI, &panelHeightI);
-//     double panelWidth = panelWidthI, panelHeight = panelHeightI;
-//     double originalWidth = (double) original.GetWidth();
-//     double originalHeight = (double) original.GetHeight();
-
-//     m_image = original.Copy();
-//     if (originalWidth / originalHeight < panelWidth / panelHeight)
-//         m_image.Rescale(originalWidth * panelHeight / originalHeight, panelHeight);
-//     else
-//         m_image.Rescale(panelWidth, originalHeight * panelWidth / originalWidth);
-// }
