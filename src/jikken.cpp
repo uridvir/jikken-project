@@ -46,7 +46,7 @@ public:
         rightSizer->Add(downloadPanel, 0, wxEXPAND);
 
         topSizer->AddSpacer(20);
-        topSizer->Add(rightSizer, 1, wxEXPAND);
+        topSizer->Add(rightSizer, 0, wxEXPAND);
 
         //Set up frame
         frame->SetSizer(topSizer);
