@@ -22,9 +22,9 @@ ConfigPanel::ConfigPanel(wxWindow* parent) : wxPanel(parent){
     //Sizer
     wxGridSizer* gridSizer = new wxGridSizer(2, 2, wxSize(30, 10));
     gridSizer->Add(serialPort, 1, wxEXPAND);
-    gridSizer->Add(serialLabel, 1, wxEXPAND);
+    gridSizer->Add(serialLabel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
     gridSizer->Add(cameraID, 1, wxEXPAND);
-    gridSizer->Add(cameraLabel, 1, wxEXPAND);
+    gridSizer->Add(cameraLabel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
     
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
     buttonSizer->Add(okButton, wxLEFT);

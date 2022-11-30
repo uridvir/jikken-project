@@ -27,13 +27,13 @@ SettingsPanel::SettingsPanel(wxWindow* parent) : wxPanel(parent){
     //Sizer
     wxGridSizer* sizer = new wxGridSizer(4, 2, wxSize(30, 10));
     sizer->Add(framerate, 1, wxEXPAND);
-    sizer->Add(framerateLabel, 1, wxEXPAND);
+    sizer->Add(framerateLabel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
     sizer->Add(resolution, 1, wxEXPAND);
-    sizer->Add(resolutionLabel, 1, wxEXPAND);
+    sizer->Add(resolutionLabel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
     sizer->Add(shutterspeed, 1, wxEXPAND);
-    sizer->Add(shutterspeedLabel, 1, wxEXPAND);
+    sizer->Add(shutterspeedLabel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
     sizer->Add(triggerMode, 1, wxEXPAND);
-    sizer->Add(triggerLabel, 1, wxEXPAND);
+    sizer->Add(triggerLabel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
 
     //Setup panel
     SetSizer(sizer);
