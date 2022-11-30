@@ -64,8 +64,7 @@ public:
         frameSizer->Add(topPanel, 1, wxEXPAND);
 
         //Set up frame
-        frame->SetSizer(frameSizer);
-        frame->SetMinClientSize(wxSize(700, 150));
+        frame->SetSizerAndFit(frameSizer);
         frame->Show(true);
         return true;
     }

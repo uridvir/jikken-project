@@ -8,7 +8,6 @@
 VideoPanel::VideoPanel(wxWindow* parent) : wxImagePanel(parent, wxID_ANY, wxDefaultPosition, wxSize(360, 240)){
     wxInitAllImageHandlers(); //wxWidgets doesn't do this automatically for some reason??
     StretchImage(); //Let image panel library do resizing
-    // SetMinSize(GetSize());
 
     //Initial image
     cv::Mat blueScreen(cv::Size(720, 480), CV_8UC3);
