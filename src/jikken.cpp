@@ -44,9 +44,9 @@ public:
 
         //Panel sizers
         wxBoxSizer* panelSizer = new wxBoxSizer(wxHORIZONTAL);
-        panelSizer->Add(configPanel, 0, wxEXPAND);
+        panelSizer->Add(configPanel, 1, wxEXPAND);
         panelSizer->AddSpacer(20);
-        panelSizer->Add(videoPanel, 1, wxSHAPED | wxEXPAND);
+        panelSizer->Add(videoPanel, 0, wxEXPAND | wxSHAPED);
 
         wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
         rightSizer->Add(settingsPanel, 1, wxEXPAND | wxTOP);
@@ -54,7 +54,7 @@ public:
         rightSizer->Add(downloadPanel, 0, wxEXPAND | wxBOTTOM);
 
         panelSizer->AddSpacer(20);
-        panelSizer->Add(rightSizer, 0, wxEXPAND);
+        panelSizer->Add(rightSizer, 1, wxEXPAND);
 
         //Set up top panel
         topPanel->SetSizer(panelSizer);
