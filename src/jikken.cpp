@@ -33,7 +33,9 @@ public:
         videoPanel = new VideoPanel(topPanel);
         settingsPanel = new SettingsPanel(topPanel);
         downloadPanel = new DownloadPanel(topPanel);
-        statusPanel = new StatusPanel(topPanel); //TODO
+        statusPanel = new StatusPanel(topPanel);
+
+        statusPanel->setStatus(StatusPanel::RecReady, true);
 
         /**
          * The window frame has one child, topPanel. So all the other
@@ -43,21 +45,26 @@ public:
         */
 
         //Panel sizers
-        wxBoxSizer* panelSizer = new wxBoxSizer(wxHORIZONTAL);
-        panelSizer->Add(configPanel, 1, wxEXPAND);
-        panelSizer->AddSpacer(20);
-        panelSizer->Add(videoPanel, 0, wxEXPAND | wxSHAPED);
+        wxBoxSizer* horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
+        horizontalSizer->Add(configPanel, 1, wxEXPAND | wxBOTTOM);
+        horizontalSizer->AddSpacer(20);
+        horizontalSizer->Add(videoPanel, 0, wxEXPAND | wxSHAPED | wxBOTTOM);
 
         wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
         rightSizer->Add(settingsPanel, 1, wxEXPAND | wxTOP);
         rightSizer->AddSpacer(10);
         rightSizer->Add(downloadPanel, 0, wxEXPAND | wxBOTTOM);
 
-        panelSizer->AddSpacer(20);
-        panelSizer->Add(rightSizer, 1, wxEXPAND);
+        horizontalSizer->AddSpacer(20);
+        horizontalSizer->Add(rightSizer, 1, wxEXPAND | wxBOTTOM);
+
+        wxBoxSizer* verticalSizer = new wxBoxSizer(wxVERTICAL);
+        verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxTOP);
+        verticalSizer->AddSpacer(20);
+        verticalSizer->Add(statusPanel, 0, wxEXPAND | wxBOTTOM);
 
         //Set up top panel
-        topPanel->SetSizer(panelSizer);
+        topPanel->SetSizer(verticalSizer);
 
         //Frame sizer
         wxBoxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);

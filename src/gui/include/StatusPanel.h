@@ -9,4 +9,12 @@ class StatusPanel : public wxPanel
 {
 public:
     StatusPanel(wxWindow* parent);
+
+    enum JikkenState {
+        Off, RecReady, Recording, ReadyToDownload, Downloading
+    };
+
+    void setStatus(JikkenState state, bool alsoHasDownload = false);
+private:
+    wxWindow *off, *recReady, *recording, *readyToDownload, *downloading;
 };
