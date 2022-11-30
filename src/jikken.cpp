@@ -45,23 +45,25 @@ public:
         */
 
         //Panel sizers
-        wxBoxSizer* horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
-        horizontalSizer->Add(configPanel, 1, wxEXPAND | wxBOTTOM);
-        horizontalSizer->AddSpacer(20);
-        horizontalSizer->Add(videoPanel, 0, wxEXPAND | wxSHAPED | wxBOTTOM);
+        wxFlexGridSizer* horizontalSizer = new wxFlexGridSizer(1, 3, wxSize(20, 0));
+        horizontalSizer->Add(configPanel, 1, wxEXPAND);
+        horizontalSizer->Add(videoPanel, 0, wxEXPAND | wxSHAPED);
 
         wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
         rightSizer->Add(settingsPanel, 1, wxEXPAND | wxTOP);
         rightSizer->AddSpacer(10);
         rightSizer->Add(downloadPanel, 0, wxEXPAND | wxBOTTOM);
 
-        horizontalSizer->AddSpacer(20);
-        horizontalSizer->Add(rightSizer, 1, wxEXPAND | wxBOTTOM);
+        horizontalSizer->Add(rightSizer, 1, wxEXPAND);
+
+        // horizontalSizer->AddGrowableCol(1, 1);
+        horizontalSizer->AddGrowableCol(0, 1);
+        horizontalSizer->AddGrowableCol(2, 1);
 
         wxBoxSizer* verticalSizer = new wxBoxSizer(wxVERTICAL);
-        verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxTOP);
+        verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxALIGN_TOP);
         verticalSizer->AddSpacer(20);
-        verticalSizer->Add(statusPanel, 0, wxEXPAND | wxBOTTOM);
+        verticalSizer->Add(statusPanel, 0, wxEXPAND | wxALIGN_BOTTOM);
 
         //Set up top panel
         topPanel->SetSizer(verticalSizer);
