@@ -47,7 +47,7 @@ public:
         //Panel sizers
         wxFlexGridSizer* horizontalSizer = new wxFlexGridSizer(1, 3, wxSize(20, 0));
         horizontalSizer->Add(configPanel, 1, wxEXPAND);
-        horizontalSizer->Add(videoPanel, 1, wxEXPAND | wxSHAPED | wxALIGN_CENTER_HORIZONTAL);
+        horizontalSizer->Add(videoPanel, 1, wxSHAPED | wxALIGN_CENTER_HORIZONTAL);
 
         wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
         rightSizer->Add(settingsPanel, 1, wxEXPAND | wxTOP);
@@ -58,8 +58,11 @@ public:
 
         horizontalSizer->AddGrowableCol(1, 1);
         horizontalSizer->AddGrowableRow(0, 1);
-        // horizontalSizer->AddGrowableCol(0, 1);
-        // horizontalSizer->AddGrowableCol(2, 1);
+        horizontalSizer->AddGrowableCol(0, 1);
+        horizontalSizer->AddGrowableCol(2, 1);
+
+        wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+        sizer->Add(horizontalSizer, 1, wxEXPAND);
 
         // wxBoxSizer* verticalSizer = new wxBoxSizer(wxVERTICAL);
         // verticalSizer->Add(horizontalSizer, 1, wxEXPAND | wxTOP);
@@ -68,7 +71,7 @@ public:
 
         //Set up top panel
         // topPanel->SetSizer(verticalSizer);
-        topPanel->SetSizer(horizontalSizer);
+        topPanel->SetSizer(sizer);
 
         //Frame sizer
         wxBoxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
