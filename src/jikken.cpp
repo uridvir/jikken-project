@@ -57,8 +57,8 @@ public:
         rightSizer->Add(downloadPanel, 0, wxEXPAND | wxBOTTOM);
 
         gbSizer->Add(rightSizer, wxGBPosition(0, 2), wxGBSpan(1, 1), wxEXPAND);
-        gbSizer->Add(statusPanel, wxGBPosition(1, 0), wxGBSpan(1, 3), wxEXPAND | wxALIGN_BOTTOM | wxALL);
-
+        gbSizer->Add(statusPanel, wxGBPosition(1, 0), wxGBSpan(1, 3), wxEXPAND);
+        
         gbSizer->AddGrowableCol(1, 1);
         gbSizer->AddGrowableRow(0, 1);
 
