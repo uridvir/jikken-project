@@ -17,7 +17,7 @@ SettingsPanel::SettingsPanel(wxWindow* parent) : wxPanel(parent){
     wxChoice* shutterspeed = new wxChoice(this, wxID_ANY);
     shutterspeed->Append({"1000", "2000", "3000"});
     shutterspeed->SetSelection(0);
-    wxStaticText* shutterspeedLabel = new wxStaticText(this, wxID_ANY, "シャッター速さ");
+    wxStaticText* shutterspeedLabel = new wxStaticText(this, wxID_ANY, "シャッター速度");
 
     wxChoice* triggerMode = new wxChoice(this, wxID_ANY);
     triggerMode->Append({"START", "CENTER", "END"});
