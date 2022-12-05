@@ -8,14 +8,14 @@
 class JikkenFrame : public wxFrame
 {
 public:
+    enum {
+        ID_PROPERTIES = 1,
+        ID_BUBBLE = 2
+    };
+
     JikkenFrame();
  
 private:
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
 };
-
-// enum
-// {
-//     ID_Hello = 1
-// };
