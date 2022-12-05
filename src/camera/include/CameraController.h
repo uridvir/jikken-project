@@ -1,0 +1,4 @@
+class CameraController {
+public:
+    CameraController();
+};
