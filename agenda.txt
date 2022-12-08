@@ -1,5 +1,5 @@
-Stubs for main window GUI callbacks
-Test those callbacks
+Stubs for main window GUI callbacks (DONE)
+Test those callbacks (DONE)
 Implement implementors of CameraMenuItem
 Mock test camera menu navigation logic
 Implement CameraSerial
