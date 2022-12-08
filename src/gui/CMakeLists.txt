@@ -6,6 +6,9 @@ add_library(jikken-gui OBJECT
     ${CMAKE_CURRENT_SOURCE_DIR}/DownloadPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/StatusPanel.cpp
 )
+
+target_link_libraries(jikken-gui jikken-camera)
+
 target_include_directories(jikken-gui PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )

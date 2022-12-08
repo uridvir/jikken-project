@@ -13,6 +13,7 @@
 #include "SettingsPanel.h"
 #include "DownloadPanel.h"
 #include "StatusPanel.h"
+#include "CameraController.h"
 
 #include <wx/gbsizer.h>
  
@@ -25,13 +26,14 @@ class JikkenApp : public wxApp
     SettingsPanel* settingsPanel;
     DownloadPanel* downloadPanel;
     StatusPanel* statusPanel;
+    CameraController camCtrl;
 
 public:
     bool OnInit(){
         //Make elements
         frame = new JikkenFrame();
         topPanel = new wxPanel(frame);
-        configPanel = new ConfigPanel(topPanel);
+        configPanel = new ConfigPanel(topPanel, &camCtrl);
         videoPanel = new VideoPanel(topPanel);
         settingsPanel = new SettingsPanel(topPanel);
         downloadPanel = new DownloadPanel(topPanel);
