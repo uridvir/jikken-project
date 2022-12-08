@@ -17,7 +17,7 @@ public:
 
         //We cannot go backwards, so must wrap
         int dist = (destIndex - currentIndex) % options.size();
-        for (int i = 0; i < dist; i++) commands.push_back(MenuEnter);
+        for (int i = 0; i < dist; i++) commands.push_back(CameraCommand::MenuEnter);
 
         return commands;
     }
