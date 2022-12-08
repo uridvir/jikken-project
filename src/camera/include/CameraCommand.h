@@ -1,4 +1,4 @@
-enum CameraCommand {
+enum class CameraCommand {
     RecReady,
     Trigger,
     Mode,
