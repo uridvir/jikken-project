@@ -39,8 +39,6 @@ public:
         downloadPanel = new DownloadPanel(topPanel);
         statusPanel = new StatusPanel(topPanel);
 
-        statusPanel->setStatus(StatusPanel::RecReady, true);
-
         /**
          * The window frame has one child, topPanel. So all the other
          * panels are actually grandchildren of the frame.
