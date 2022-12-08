@@ -22,5 +22,5 @@ public:
     void OnOK(wxCommandEvent& event);
     void OnEdit(wxCommandEvent& event);
     void log(std::string text);
-    void set(std::string serial, std::string id);
+    void set(std::string serial, std::string id); //Differs from class diagram
 };

@@ -12,7 +12,7 @@ public:
     CameraController();
     bool config(std::string port, std::string id);
     void setCameraProperty(std::string prop, std::string value);
-    std::string getCameraProperty(std::string prop);
+    std::string getCameraProperty(std::string prop); //Differs from class diagram
     void record();
     void download();
 };
