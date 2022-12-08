@@ -1,6 +1,6 @@
 Stubs for main window GUI callbacks (DONE)
 Test those callbacks (DONE)
-Implement implementors of CameraMenuItem
+Implement implementors of CameraMenuItem (DONE)
 Mock test camera menu navigation logic
 Implement CameraSerial
 Implement CameraVideoStream
