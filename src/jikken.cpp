@@ -35,7 +35,7 @@ public:
         topPanel = new wxPanel(frame);
         configPanel = new ConfigPanel(topPanel, &camCtrl);
         videoPanel = new VideoPanel(topPanel);
-        settingsPanel = new SettingsPanel(topPanel);
+        settingsPanel = new SettingsPanel(topPanel, &camCtrl);
         downloadPanel = new DownloadPanel(topPanel);
         statusPanel = new StatusPanel(topPanel);
 
