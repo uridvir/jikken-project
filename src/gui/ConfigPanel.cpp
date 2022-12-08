@@ -52,7 +52,7 @@ ConfigPanel::ConfigPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(
 void ConfigPanel::OnOK(wxCommandEvent& event){
     //Fetch config settings
     std::string serial = this->serialPort->GetValue();
-    int id = this->cameraID->GetSelection();
+    std::string id = this->cameraID->GetStringSelection();
 
     //Lock
     this->serialPort->Enable(false);
@@ -110,8 +110,8 @@ void ConfigPanel::log(std::string text){
     this->logBox->SetValue(logText);
 }
 
-void ConfigPanel::set(std::string serial, int id){
+void ConfigPanel::set(std::string serial, std::string id){
     this->serialPort->ChangeValue(serial);
-    this->cameraID->SetSelection(id);
+    this->cameraID->SetStringSelection(id);
     OnOK(wxCommandEvent()); //Pretend OK button was pressed, and give dummy event
 }
