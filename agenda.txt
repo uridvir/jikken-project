@@ -15,6 +15,7 @@ Add no-camera mode
 Refactor VideoCleaner and integrate into GUI codebase
 First integration test on client hardware
 Add full status panel and logging support
+Replace meme text in about dialog, etc. (make it professional/presentable)
 Client test 2
 Refine algorithm parameter selection
 Client test 3
@@ -25,5 +26,6 @@ Make sure manual control won't screw things up (check ZOOM, OVERHEAT, etc. setti
 Client test 5
 Re-introduce video-clean and bubble-count (bubble-count now takes an optional config file)
 Test command-line tools on personal machine
+Add icon to program executable
 Add language toggle in properties panel and implement language change
 Client test 6
