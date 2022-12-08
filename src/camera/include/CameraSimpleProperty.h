@@ -18,6 +18,8 @@ class CameraSimpleProperty : public CameraMenuItem {
     }
     bool canSetProperty(std::string prop) override final { return prop == name; }
     std::vector<CameraCommand> setProperty(std::string prop, std::string value) override {
+        if (!canSetProperty(prop)) return {};
+
         // Click to enter the property page
         std::vector<CameraCommand> commands = {MenuEnter};
 

@@ -5,6 +5,8 @@ public:
     CameraToggleProperty(std::string name, const std::vector<std::string>& options, CameraController* camCtrl)
         : CameraSimpleProperty(name, options, false, camCtrl) {}
     std::vector<CameraCommand> setProperty(std::string prop, std::string value) override {
+        if (!canSetProperty(prop)) return {};
+
         std::vector<CameraCommand> commands;
 
         // Calculate indices
