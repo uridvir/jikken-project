@@ -1,0 +1,29 @@
+Stubs for main window GUI callbacks
+Test those callbacks
+Implement implementors of CameraMenuItem
+Mock test camera menu navigation logic
+Implement CameraSerial
+Add properties panel and JikkenGlobals
+Mock test properties and JikkenGlobals (logging, etc.)
+Implement camera setup sequence
+Implement camera record and download sequences
+Temporarily remove video-clean and bubble-count command-line tools
+Refactor BubbleCounter and integrate into GUI codebase
+Add bubble-counting functionality
+Test bubble-counting
+Add no-camera mode
+Refactor VideoCleaner and integrate into GUI codebase
+First integration test on client hardware
+Add full status panel and logging support
+Client test 2
+Refine algorithm parameter selection
+Client test 3
+Add overheat precautions
+Client test 4
+Add manual camera control window/mode
+Make sure manual control won't screw things up (check ZOOM, OVERHEAT, etc. settings aren't tampered with)
+Client test 5
+Re-introduce video-clean and bubble-count (bubble-count now takes an optional config file)
+Test command-line tools on personal machine
+Add language toggle in properties panel and implement language change
+Client test 6
