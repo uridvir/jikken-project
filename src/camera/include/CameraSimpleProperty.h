@@ -1,0 +1,43 @@
+#include "CameraController.h"
+#include "CameraMenuItem.h"
+
+class CameraSimpleProperty : public CameraMenuItem {
+    bool escOnTop;
+
+   protected:
+    std::string name;
+    std::vector<std::string> options;
+    CameraController* camCtrl;
+
+   public:
+    CameraSimpleProperty(std::string name, const std::vector<std::string>& options, bool escOnTop, CameraController* camCtrl) {
+        this->name = name;
+        this->options = std::vector<std::string>(options.begin(), options.end());
+        this->escOnTop = escOnTop;
+        this->camCtrl = camCtrl;
+    }
+    bool canSetProperty(std::string prop) override final { return prop == name; }
+    std::vector<CameraCommand> setProperty(std::string prop, std::string value) override {
+        // Click to enter the property page
+        std::vector<CameraCommand> commands = {MenuEnter};
+
+        // Calculate indices
+        std::string current = camCtrl->getCameraProperty(prop);
+        int currentIndex = std::distance(options.begin(), std::find(options.begin(), options.end(), current));
+        std::string dest = value;
+        int destIndex = std::distance(options.begin(), std::find(options.begin(), options.end(), dest));
+
+        auto navigate = [&commands, &currentIndex, destIndex]() {
+            while (currentIndex != destIndex) {
+                commands.push_back(currentIndex < destIndex ? Down : Up);
+                currentIndex += currentIndex < destIndex ? 1 : -1;
+            }
+        };
+
+        navigate();                     // Scroll down (or up) to the requested value
+        commands.push_back(MenuEnter);  // Click
+        destIndex = escOnTop ? -1 : options.size();
+        navigate();                     // Scroll to ESC
+        commands.push_back(MenuEnter);  // Click
+    }
+};
