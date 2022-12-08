@@ -29,3 +29,4 @@ Test command-line tools on personal machine
 Add icon to program executable
 Add language toggle in properties panel and implement language change
 Client test 6
+Before final submission, make corrections to class diagram, etc.
