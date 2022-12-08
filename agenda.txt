@@ -3,6 +3,7 @@ Test those callbacks
 Implement implementors of CameraMenuItem
 Mock test camera menu navigation logic
 Implement CameraSerial
+Implement CameraVideoStream
 Add properties panel and JikkenGlobals
 Mock test properties and JikkenGlobals (logging, etc.)
 Implement camera setup sequence
