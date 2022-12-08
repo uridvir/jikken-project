@@ -5,8 +5,15 @@
     #include <wx/wx.h>
 #endif
 
+#include "CameraController.h"
+
 class DownloadPanel : public wxPanel
 {
+    wxButton* recordButton;
+    wxButton* downloadButton;
+    CameraController* camCtrl;
 public:
-    DownloadPanel(wxWindow* parent);
+    DownloadPanel(wxWindow* parent, CameraController* camCtrl);
+    void OnRecord(wxCommandEvent& event);
+    void OnDownload(wxCommandEvent& event);
 };

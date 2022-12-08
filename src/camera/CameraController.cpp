@@ -1,6 +1,8 @@
 #include "CameraController.h"
 
 #include <string>
+#include <thread>
+#include <chrono>
 
 CameraController::CameraController(){
     
@@ -28,9 +30,13 @@ std::string CameraController::getCameraProperty(std::string prop){
 }
 
 void CameraController::record(){
-
+    std::cout << "CameraController recording... ";
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::cout << "done!" << std::endl;
 }
 
 void CameraController::download(){
-
+    std::cout << "CameraController downloading... ";
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::cout << "done!" << std::endl;
 }

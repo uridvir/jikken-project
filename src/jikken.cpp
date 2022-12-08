@@ -36,7 +36,7 @@ public:
         configPanel = new ConfigPanel(topPanel, &camCtrl);
         videoPanel = new VideoPanel(topPanel);
         settingsPanel = new SettingsPanel(topPanel, &camCtrl);
-        downloadPanel = new DownloadPanel(topPanel);
+        downloadPanel = new DownloadPanel(topPanel, &camCtrl);
         statusPanel = new StatusPanel(topPanel);
 
         /**
