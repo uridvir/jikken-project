@@ -2,10 +2,12 @@
 
 #include <iostream>
 
+#include "CameraMenu.h"
+
 class CameraController {
     // CameraSerial serial;
     // CameraVideoStream stream;
-    // CameraMenu mainMenu;
+    CameraMenu mainMenu;
     // cv::VideoWriter rec;
     // VideoCleaner cleaner;
 public:
