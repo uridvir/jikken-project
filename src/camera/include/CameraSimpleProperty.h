@@ -1,4 +1,5 @@
-#include "CameraController.h"
+#pragma once
+
 #include "CameraMenuItem.h"
 
 class CameraSimpleProperty : public CameraMenuItem {

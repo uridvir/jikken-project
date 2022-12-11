@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CameraMenuBlank.h"
 #include "CameraMenuItem.h"
 

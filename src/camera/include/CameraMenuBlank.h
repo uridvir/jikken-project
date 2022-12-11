@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CameraMenuItem.h"
 
 class CameraMenuBlank : public CameraMenuItem {
