@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CameraQuerier.h"
 #include "CameraMenuItem.h"
 
 class CameraSimpleProperty : public CameraMenuItem {
@@ -8,16 +9,16 @@ class CameraSimpleProperty : public CameraMenuItem {
    protected:
     std::string name;
     std::vector<std::string> options;
-    CameraController* camCtrl;
+    CameraQuerier* camQuer;
 
    public:
-    CameraSimpleProperty(std::string name, const std::vector<std::string>& options, bool escOnTop, CameraController* camCtrl) {
+    CameraSimpleProperty(std::string name, const std::vector<std::string>& options, bool escOnTop, CameraQuerier* camQuer) {
         this->name = name;
         this->options = std::vector<std::string>(options.begin(), options.end());
         this->escOnTop = escOnTop;
-        this->camCtrl = camCtrl;
+        this->camQuer = camQuer;
     }
-    bool canSetProperty(std::string prop) override final { return prop == name; }
+    bool canSetProperty(std::string prop) override { return prop == name; }
     std::vector<CameraCommand> setProperty(std::string prop, std::string value) override {
         if (!canSetProperty(prop)) return {};
 
@@ -25,7 +26,7 @@ class CameraSimpleProperty : public CameraMenuItem {
         std::vector<CameraCommand> commands = {CameraCommand::MenuEnter};
 
         // Calculate indices
-        std::string current = camCtrl->getCameraProperty(prop);
+        std::string current = camQuer->getCameraProperty(prop);
         int currentIndex = std::distance(options.begin(), std::find(options.begin(), options.end(), current));
         std::string dest = value;
         int destIndex = std::distance(options.begin(), std::find(options.begin(), options.end(), dest));

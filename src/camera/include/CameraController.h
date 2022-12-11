@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include "CameraMenu.h"
+#include "CameraQuerier.h"
 
-class CameraController {
+class CameraController : public CameraQuerier {
     // CameraSerial serial;
     // CameraVideoStream stream;
     CameraMenu mainMenu;
@@ -14,7 +14,7 @@ public:
     CameraController();
     bool config(std::string port, std::string id);
     void setCameraProperty(std::string prop, std::string value);
-    std::string getCameraProperty(std::string prop); //Differs from class diagram
+    std::string getCameraProperty(std::string prop) override; //Differs from class diagram
     void record();
     void download();
 };
