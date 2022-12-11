@@ -18,4 +18,6 @@ public:
 private:
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
+    void OnProperties(wxCommandEvent& event);
+    void OnBubble(wxCommandEvent& event);
 };

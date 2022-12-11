@@ -29,6 +29,8 @@ JikkenFrame::JikkenFrame()
  
     Bind(wxEVT_MENU, &JikkenFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &JikkenFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_MENU, &JikkenFrame::OnProperties, this, ID_PROPERTIES);
+    Bind(wxEVT_MENU, &JikkenFrame::OnBubble, this, ID_BUBBLE);
 }
  
 void JikkenFrame::OnExit(wxCommandEvent& event)
@@ -40,4 +42,12 @@ void JikkenFrame::OnAbout(wxCommandEvent& event)
 {
     wxMessageBox("じっけんちゃんは、じっけんちゃんが何わかんないよ～",
                  "じっけんプログラム方法", wxOK | wxICON_INFORMATION);
+}
+
+void JikkenFrame::OnProperties(wxCommandEvent& event){
+
+}
+
+void JikkenFrame::OnBubble(wxCommandEvent& event){
+
 }
