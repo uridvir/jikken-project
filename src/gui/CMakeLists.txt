@@ -5,6 +5,7 @@ add_library(jikken-gui OBJECT
     ${CMAKE_CURRENT_SOURCE_DIR}/SettingsPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/DownloadPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/StatusPanel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/PropertiesFrame.cpp
 )
 
 target_link_libraries(jikken-gui jikken-camera)
