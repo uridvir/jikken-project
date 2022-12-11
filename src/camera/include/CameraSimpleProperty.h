@@ -32,7 +32,7 @@ class CameraSimpleProperty : public CameraMenuItem {
         int destIndex = std::distance(options.begin(), std::find(options.begin(), options.end(), dest));
 
         // Scroll logic helper
-        auto navigate = [&commands, &currentIndex, destIndex]() {
+        auto navigate = [&commands, &currentIndex, &destIndex]() {
             while (currentIndex != destIndex) {
                 commands.push_back(currentIndex < destIndex ? CameraCommand::Down : CameraCommand::Up);
                 currentIndex += currentIndex < destIndex ? 1 : -1;

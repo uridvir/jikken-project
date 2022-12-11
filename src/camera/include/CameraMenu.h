@@ -35,7 +35,7 @@ class CameraMenu : public CameraMenuItem {
             std::find_if(children.begin(), children.end(), [prop](auto& item) { return item->canSetProperty(prop); }));
 
         // Scroll logic helper
-        auto navigate = [&commands, &currentIndex, destIndex]() {
+        auto navigate = [&commands, &currentIndex, &destIndex]() {
             while (currentIndex != destIndex) {
                 commands.push_back(currentIndex < destIndex ? CameraCommand::Down : CameraCommand::Up);
                 currentIndex += currentIndex < destIndex ? 1 : -1;
