@@ -2,7 +2,7 @@ Stubs for main window GUI callbacks (DONE)
 Test those callbacks (DONE)
 Implement implementors of CameraMenuItem (DONE)
 Mock test camera menu navigation logic (DONE)
-Implement CameraSerial
+Implement CameraSerial (DONE)
 Implement CameraVideoStream
 Add properties panel and JikkenGlobals
 Mock test properties and JikkenGlobals (logging, etc.)
