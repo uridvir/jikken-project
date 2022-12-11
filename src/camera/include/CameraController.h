@@ -4,7 +4,7 @@
 #include <map>
 
 #include "CameraQuerier.h"
-#include "CameraMenuWrapperProperty.h"
+#include "CameraMenuItem.h"
 
 class CameraController : public CameraQuerier {
     std::map<std::string, std::string> properties; //Only for debug
