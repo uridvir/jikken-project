@@ -1,9 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include "CameraMenuBlank.h"
 #include "CameraMenuItem.h"
-
-#include <memory>
 
 class CameraMenu : public CameraMenuItem {
     std::vector<std::shared_ptr<CameraMenuItem>> children;
@@ -11,7 +11,6 @@ class CameraMenu : public CameraMenuItem {
 
    public:
     CameraMenu(bool startOnEsc) { this->startOnEsc = startOnEsc; }
-    CameraMenu() : CameraMenu(false) {}
     void addChild(CameraMenuItem* item) { children.push_back(std::shared_ptr<CameraMenuItem>(item)); }
     void addBlank(const int count) {
         for (int i = 0; i < count; i++) addChild(new CameraMenuBlank());
@@ -30,9 +29,8 @@ class CameraMenu : public CameraMenuItem {
 
         // Calculate indices
         int currentIndex = startOnEsc ? children.size() : 0;
-        int destIndex = std::distance(
-            children.begin(),
-            std::find_if(children.begin(), children.end(), [prop](auto& item) { return item->canSetProperty(prop); }));
+        int destIndex = std::distance(children.begin(), std::find_if(children.begin(), children.end(),
+                                                                     [prop](auto& item) { return item->canSetProperty(prop); }));
 
         // Scroll logic helper
         auto navigate = [&commands, &currentIndex, &destIndex]() {
@@ -42,7 +40,7 @@ class CameraMenu : public CameraMenuItem {
             }
         };
 
-        navigate();                                                         // Scroll to the child that has the property
+        navigate();                                                          // Scroll to the child that has the property
         auto childCommands = children[destIndex]->setProperty(prop, value);  // Enter child
         commands.insert(commands.end(), childCommands.begin(), childCommands.end());
         destIndex = children.size();

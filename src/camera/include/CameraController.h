@@ -11,7 +11,7 @@ class CameraController : public CameraQuerier {
 
     // CameraSerial serial;
     // CameraVideoStream stream;
-    CameraMenuWrapperProperty menuRoot;
+    std::shared_ptr<CameraMenuItem> menuRoot;
     // cv::VideoWriter rec;
     // VideoCleaner cleaner;
 public:

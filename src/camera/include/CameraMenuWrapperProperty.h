@@ -1,25 +1,25 @@
 #pragma once
 
+#include <memory>
+
 #include "CameraSimpleProperty.h"
-#include "CameraMenu.h"
 
 class CameraMenuWrapperProperty : public CameraSimpleProperty {
-    CameraMenu child;
+    std::shared_ptr<CameraMenuItem> child;
 public:
     CameraMenuWrapperProperty(std::string name, const std::vector<std::string>& options, CameraQuerier* camQuer)
         : CameraSimpleProperty(name, options, false, camQuer) {}
-    CameraMenuWrapperProperty() : CameraMenuWrapperProperty("", {}, nullptr) {}
-    void addChild(CameraMenu child){
-        this->child = child;
+    void addChild(CameraMenuItem* child){
+        this->child = std::shared_ptr<CameraMenuItem>(child);
     }
     bool canSetProperty(std::string prop) override {
         if (prop == name) return true;
-        return child.canSetProperty(prop);
+        return child->canSetProperty(prop);
     }
     std::vector<CameraCommand> setProperty(std::string prop, std::string value) override {
         if (!canSetProperty(prop)) return {};
 
-        if (prop != name) return child.setProperty(prop, value); // Outsource to child
+        if (prop != name) return child->setProperty(prop, value); // Outsource to child
 
         std::vector<CameraCommand> commands;
 
