@@ -17,7 +17,7 @@ SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
     resolutionLabel = new wxStaticText(this, wxID_ANY, "解像度");
 
     shutterspeed = new wxChoice(this, wxID_ANY);
-    shutterspeed->Append({"1000", "2000", "3000"});
+    shutterspeed->Append({"1/1000", "1/2000", "1/3000"});
     shutterspeed->SetSelection(0);
     shutterspeedLabel = new wxStaticText(this, wxID_ANY, "シャッター速度");
 
