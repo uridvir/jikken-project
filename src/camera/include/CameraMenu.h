@@ -11,6 +11,7 @@ class CameraMenu : public CameraMenuItem {
 
    public:
     CameraMenu(bool startOnEsc) { this->startOnEsc = startOnEsc; }
+    CameraMenu() : CameraMenu(false) {}
     void addChild(CameraMenuItem* item) { children.push_back(std::shared_ptr<CameraMenuItem>(item)); }
     void addBlank(const int count) {
         for (int i = 0; i < count; i++) addChild(new CameraMenuBlank());
