@@ -3,20 +3,22 @@
 #include "CameraMenuBlank.h"
 #include "CameraMenuItem.h"
 
+#include <memory>
+
 class CameraMenu : public CameraMenuItem {
-    std::vector<CameraMenuItem> children;
+    std::vector<std::shared_ptr<CameraMenuItem>> children;
     bool startOnEsc;
 
    public:
     CameraMenu(bool startOnEsc) { this->startOnEsc = startOnEsc; }
-    void addChild(const CameraMenuItem& item) { children.push_back(item); }
+    void addChild(CameraMenuItem* item) { children.push_back(std::shared_ptr<CameraMenuItem>(item)); }
     void addBlank(const int count) {
-        for (int i = 0; i < count; i++) children.push_back(CameraMenuBlank());
+        for (int i = 0; i < count; i++) addChild(new CameraMenuBlank());
     }
     void addBlank() { addBlank(1); }
     bool canSetProperty(std::string prop) override {
-        for (auto child : children)
-            if (child.canSetProperty(prop)) return true;
+        for (auto& child : children)
+            if (child->canSetProperty(prop)) return true;
         return false;
     }
     std::vector<CameraCommand> setProperty(std::string prop, std::string value) override {
@@ -29,7 +31,7 @@ class CameraMenu : public CameraMenuItem {
         int currentIndex = startOnEsc ? children.size() : 0;
         int destIndex = std::distance(
             children.begin(),
-            std::find_if(children.begin(), children.end(), [prop](CameraMenuItem item) { return item.canSetProperty(prop); }));
+            std::find_if(children.begin(), children.end(), [prop](auto& item) { return item->canSetProperty(prop); }));
 
         // Scroll logic helper
         auto navigate = [&commands, &currentIndex, destIndex]() {
@@ -40,7 +42,7 @@ class CameraMenu : public CameraMenuItem {
         };
 
         navigate();                                                         // Scroll to the child that has the property
-        auto childCommands = children[destIndex].setProperty(prop, value);  // Enter child
+        auto childCommands = children[destIndex]->setProperty(prop, value);  // Enter child
         commands.insert(commands.end(), childCommands.begin(), childCommands.end());
         destIndex = children.size();
         navigate();                                    // Scroll to ESC
