@@ -4,12 +4,13 @@
 #include <map>
 
 #include "CameraQuerier.h"
+#include "CameraSerial.h"
 #include "CameraMenuItem.h"
 
 class CameraController : public CameraQuerier {
     std::map<std::string, std::string> properties; //Only for debug
 
-    // CameraSerial serial;
+    CameraSerial serial;
     // CameraVideoStream stream;
     std::shared_ptr<CameraMenuItem> menuRoot;
     // cv::VideoWriter rec;
