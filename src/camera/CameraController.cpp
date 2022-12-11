@@ -4,39 +4,51 @@
 #include <string>
 #include <thread>
 
+#include "CameraMenuWrapperProperty.h"
 #include "CameraButtonProperty.h"
 #include "CameraSimpleProperty.h"
 #include "CameraToggleProperty.h"
 
-CameraController::CameraController() : mainMenu(CameraMenu(false)) { // Main menu does not start on ESC
+CameraController::CameraController() { 
     /**
      * SET UP MENU NAVIGATION
     */
-    mainMenu.addChild(CameraSimpleProperty("TRIGGERMODE", {"START", "CENTER", "END", "RANDOM"}, false, this));  // ESC on bottom
-    mainMenu.addChild(CameraSimpleProperty(
+    menuRoot = CameraMenuWrapperProperty("SHUTTERSPEED", {"1/30", "1/60", "1/125", "1/250", "1/500", "1/1000", "1/2000", "1/3000", "1/5000", "1/10000", "1/20000"}, this);
+
+    CameraMenu mainMenu(false); // Main menu does not start on ESC
+    mainMenu.addChild(new CameraSimpleProperty("TRIGGERMODE", {"START", "CENTER", "END", "RANDOM"}, false, this));  // ESC on bottom
+    mainMenu.addChild(new CameraSimpleProperty(
         "FRAMERATE", {"30", "60", "125", "250", "500", "1000", "2000", "3000", "5000", "10000"}, false, this));  // ESC on bottom
-    mainMenu.addChild(CameraSimpleProperty(
+    mainMenu.addChild(new CameraSimpleProperty(
         "RESOLUTION", {"512 x 480", "512 x 240", "256 x 240", "256 x 120", "128 x 120", "128 x 80", "128 x 34"}, false,
         this));  // ESC on bottom
 
-    CameraMenu idNumberMenu(false);
-    idNumberMenu.addChild(CameraButtonProperty("IDNUMBER_CLEAR"));
-    idNumberMenu.addChild(CameraButtonProperty("IDNUMBER_INCREMENT"));
-    idNumberMenu.addChild(CameraButtonProperty("IDNUMBER_DECREMENT"));
+    CameraMenu* idNumberMenu = new CameraMenu(false);
+    idNumberMenu->addChild(new CameraButtonProperty("IDNUMBER_CLEAR"));
+    idNumberMenu->addChild(new CameraButtonProperty("IDNUMBER_INCREMENT"));
+    idNumberMenu->addChild(new CameraButtonProperty("IDNUMBER_DECREMENT"));
     mainMenu.addChild(idNumberMenu);
 
     mainMenu.addBlank(); // Gamma tab
 
-    CameraMenu systemMenu(true);
-    systemMenu.addBlank(2);  // Edge enhancement and zoom tabs
-    CameraMenu displayMenu(false);
-    displayMenu.addBlank(); // Date/time toggle
-    displayMenu.addChild(CameraToggleProperty("DISPLAY", {"ON1", "ON2", "OFF"}, this));
-    systemMenu.addChild(displayMenu);
-    systemMenu.addBlank(5); // Date/time set, external IO, Color Temp, Others, Status
+    CameraMenu* systemMenu = new CameraMenu(true);
+    systemMenu->addBlank(2);  // Edge enhancement and zoom tabs
+    CameraMenu* displayMenu = new CameraMenu(false);
+    displayMenu->addBlank(); // Date/time toggle
+    displayMenu->addChild(new CameraToggleProperty("DISPLAY", {"ON1", "ON2", "OFF"}, this));
+    systemMenu->addChild(displayMenu);
+    systemMenu->addBlank(5); // Date/time set, external IO, Color Temp, Others, Status
     //TOOD: Check number of child in system menu on the hardware
     mainMenu.addChild(systemMenu);
 
+    menuRoot.addChild(mainMenu);
+
+    //Debug
+    properties.insert({"FRAMERATE", "1000"});
+    properties.insert({"RESOLUTION", "256 x 240"});
+    properties.insert({"SHUTTERSPEED", "1/1000"});
+    properties.insert({"TRIGGERMODE", "START"});
+    properties.insert({"DISPLAY", "ON1"});
 }
 
 bool CameraController::config(std::string serial, std::string id) {
@@ -46,17 +58,29 @@ bool CameraController::config(std::string serial, std::string id) {
 }
 
 void CameraController::setCameraProperty(std::string prop, std::string value) {
-    if (prop == "FRAMERATE")
-        std::cout << "CameraController setting framerate to " << value << std::endl;
-    else if (prop == "SHUTTERSPEED")
-        std::cout << "CameraController setting shutter speed to " << value << std::endl;
-    else if (prop == "TRIGGERMODE")
-        std::cout << "CameraController setting trigger mode to " << value << std::endl;
-    else
-        std::cout << "CameraController was told to set property which does not exist!" << std::endl;
+    auto commands = menuRoot.setProperty(prop, value);
+    std::cout << "CameraController sent commands ";
+    auto commandToString = [](CameraCommand command) {
+        switch(command) {
+            case CameraCommand::RecReady: return "RecReady";
+            case CameraCommand::Trigger: return "Trigger";
+            case CameraCommand::Mode: return "Mode";
+            case CameraCommand::Play: return "Play";
+            case CameraCommand::Esc: return "Esc";
+            case CameraCommand::Down: return "Down";
+            case CameraCommand::MenuEnter: return "MenuEnter";
+            case CameraCommand::Up: return "Up";
+        }
+        return "";
+    };
+    for (auto command : commands) std::cout << commandToString(command) << " ";
+    std::cout << std::endl;
+    properties[prop] = value;
 }
 
-std::string CameraController::getCameraProperty(std::string prop) { return ""; }
+std::string CameraController::getCameraProperty(std::string prop) {
+    return properties.at(prop);
+ }
 
 void CameraController::record() {
     std::cout << "CameraController recording... ";

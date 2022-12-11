@@ -1,13 +1,17 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 
 #include "CameraQuerier.h"
+#include "CameraMenuWrapperProperty.h"
 
 class CameraController : public CameraQuerier {
+    std::map<std::string, std::string> properties; //Only for debug
+
     // CameraSerial serial;
     // CameraVideoStream stream;
-    CameraMenu mainMenu;
+    CameraMenuWrapperProperty menuRoot;
     // cv::VideoWriter rec;
     // VideoCleaner cleaner;
 public:
