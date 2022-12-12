@@ -20,12 +20,12 @@ bool CameraVideoStream::verifyTrulyOpen() {
 
 bool CameraVideoStream::connect(std::string id) {
     if (connected){
-        cap.release();
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        cap = cv::VideoCapture();
+        // cap.release();
+        // std::this_thread::sleep_for(std::chrono::seconds(1));
+        // cap = cv::VideoCapture();
     } 
-    threadsafeAction([id, this]() { cap.open(atoi(id.c_str()), cv::CAP_ANY); });
-    connected = cap.grab();
+    threadsafeAction([id, this]() { cap.open(atoi(id.c_str()), cv::CAP_ANY); jikkenGlobals.log("Connecting."); });
+    connected = cap.isOpened();
     if (connected)
         jikkenGlobals.log("Video connection.");
     else {
@@ -36,16 +36,15 @@ bool CameraVideoStream::connect(std::string id) {
 }
 
 void CameraVideoStream::addSubscriber(VideoSubscriber* sub) {
-    threadsafeAction([sub, this]() { subscribers.push_back(sub); });
-    jikkenGlobals.log("Added subscriber.");
+    threadsafeAction([sub, this]() { subscribers.push_back(sub); jikkenGlobals.log("Added subscriber."); });
 }
 
 void CameraVideoStream::removeSubscriber(VideoSubscriber* sub) {
     threadsafeAction([sub, this]() {
         subscribers.erase(std::find(subscribers.begin(), subscribers.end(), sub));
         sub->onRemove();
+        jikkenGlobals.log("Removed subscriber.");
     });
-    jikkenGlobals.log("Removed subscriber.");
 }
 
 void CameraVideoStream::threadsafeAction(std::function<void()> action) {
@@ -55,8 +54,8 @@ void CameraVideoStream::threadsafeAction(std::function<void()> action) {
     }
     action();
     if (cap.isOpened()){
-        std::cout << "Unlock" << std::endl;
         mutex.unlock();
+        std::cout << "Unlock" << std::endl;
     }
 }
 
@@ -66,7 +65,7 @@ void CameraVideoStream::loop() {
     while (true) {
         {
             const std::lock_guard<std::mutex> lock(mutex);  // Makes the loop thread-safe
-            // std::cout << "Lock" << std::endl;
+            // std::cout << "Loop lock" << std::endl;
             // if (!cap.isOpened()){
             //     std::cout << "Continue" << std::endl;
             //     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -77,15 +76,22 @@ void CameraVideoStream::loop() {
                 if (sub->isDone()) removeSubscriber(sub);
             // std::cout << "Unlock" << std::endl;
         }
-        
-        cv::Mat frame;
-        cap.read(frame);
-        count = (count + 1) % 100;
-        if (count == 0) jikkenGlobals.log("loop alive.");
 
-        const std::lock_guard<std::mutex> lock(mutex);  // Makes the loop thread-safe
-        // std::cout << "Lock" << std::endl;
-        for (VideoSubscriber* sub : subscribers) sub->onReceiveMat(frame);
-        // std::cout << "Unlock" << std::endl;
+        try {
+            if (!cap.isOpened()) continue;
+
+            cv::Mat frame;
+            cap.read(frame);
+            count = (count + 1) % 100;
+            if (count == 0) jikkenGlobals.log("loop alive.");
+
+            const std::lock_guard<std::mutex> lock(mutex);  // Makes the loop thread-safe
+            // std::cout << "Lock" << std::endl;
+            for (VideoSubscriber* sub : subscribers) sub->onReceiveMat(frame);
+            // std::cout << "Unlock" << std::endl;
+        }
+        catch (std::exception e) {
+            std::cout << "Catch" << std::endl;
+        }
     }
 }

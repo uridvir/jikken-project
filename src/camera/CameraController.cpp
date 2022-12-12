@@ -67,11 +67,11 @@ bool CameraController::config() {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-    if (!serial.connect(jikkenGlobals.getProperty("SERIALPORT"))){
-        jikkenGlobals.log("Bad serial connection.");
-        jikkenGlobals.log("-----------------------");
-        return false;
-    }
+    // if (!serial.connect(jikkenGlobals.getProperty("SERIALPORT"))){
+    //     jikkenGlobals.log("Bad serial connection.");
+    //     jikkenGlobals.log("-----------------------");
+    //     return false;
+    // }
     if (!stream.connect(jikkenGlobals.getProperty("CAMERAID"))){
         jikkenGlobals.log("Bad video connection.");
         jikkenGlobals.log("-----------------------");
