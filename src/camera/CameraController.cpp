@@ -113,28 +113,47 @@ void CameraController::setCameraProperty(std::string prop, std::string value) {
 
 std::string CameraController::getCameraProperty(std::string prop) { return serial.query(prop, menuRoot->getOptions(prop)); }
 
+const std::map<std::string, int> frameCount = {{"512 x 480", 546}, {"256 x 240", 2184}, {"128 x 120", 8736}};
+
 void CameraController::record() {
     std::string resolution = getCameraProperty("RESOLUTION");
     std::string framerate = getCameraProperty("FRAMERATE");
 
-    const std::vector<std::string> validResolutions = {"512 x 480", "256 x 240", "128 x 120"};
-    const std::map<std::string, int> frameCount = {
-        {"512 x 480", 546},
-        {"256 x 240", 2184},
-        {"128 x 120", 8736}
-    };
     double frames = frameCount.at(resolution);
     double fps = std::atoi(framerate.c_str());
     int recordTimeMillis = frames / fps * 1000;
 
     serial.execute(CameraCommand::Trigger);
     std::this_thread::sleep_for(std::chrono::milliseconds(recordTimeMillis + 50));
+    serial.execute(CameraCommand::RecReady);
 }
 
 void CameraController::download() {
-    std::cout << "CameraController downloading... ";
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    std::cout << "done!" << std::endl;
+    // Setup for cleaner
+    std::mutex* waitHandle = new std::mutex();
+    cv::Rect crop(cv::Point((720 - 512) / 2, 0), cv::Size(512, 480));
+
+    std::string resolution = getCameraProperty("RESOLUTION");
+    const std::map<std::string, cv::Size> sizeMap = {
+        {"512 x 480", cv::Size(512, 480)}, {"256 x 240", cv::Size(256, 240)}, {"128 x 120", cv::Size(128, 120)}};
+    cv::Size size = sizeMap.at(resolution);
+
+    int fourcc = cv::VideoWriter::fourcc('X', '2', '6', '4');
+    cv::VideoWriter* rec = new cv::VideoWriter("vid.mp4", fourcc, 30, size, true);
+    int frames = frameCount.at(resolution);
+
+    // Get ready to record
+    setCameraProperty("DISPLAY", "OFF");
+    serial.execute(CameraCommand::Mode);
+
+    CameraVideoCleaner* cleaner = new CameraVideoCleaner(rec, crop, size, frames, waitHandle);
+    stream.addSubscriber(cleaner);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));  // Give cleaner time to start
+    serial.execute(CameraCommand::Play);
+    waitHandle->lock();  // Wait for cleaner
+    serial.execute(CameraCommand::Mode);
+    setCameraProperty("DISPLAY", "ON1");
+    serial.execute(CameraCommand::RecReady);
 }
 
 void CameraController::assignMonitor(VideoSubscriber* video) { this->video = video; }

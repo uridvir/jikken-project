@@ -2,6 +2,7 @@ add_library(jikken-camera OBJECT
     ${CMAKE_CURRENT_SOURCE_DIR}/CameraController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CameraSerial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CameraVideoStream.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CameraVideoCleaner.cpp
 )
 
 target_link_libraries(jikken-camera PUBLIC 
