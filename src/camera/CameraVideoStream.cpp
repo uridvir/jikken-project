@@ -5,7 +5,7 @@
 std::mutex mutex;
 
 CameraVideoStream::CameraVideoStream() {
-    loopThread = std::thread(&loop);
+    loopThread = std::thread([this]() { this->loop(); });
     mutex.lock();
 }
 
@@ -20,7 +20,7 @@ void CameraVideoStream::addSubscriber(VideoSubscriber* sub) {
 
 void CameraVideoStream::removeSubscriber(VideoSubscriber* sub) {
     threadsafeAction([sub, this]() {
-        std::remove(subscribers.begin(), subscribers.end(), sub);
+        subscribers.erase(std::find(subscribers.begin(), subscribers.end(), sub));
         sub->onRemove();
     });
 }

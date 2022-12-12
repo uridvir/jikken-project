@@ -5,14 +5,12 @@
     #include <wx/wx.h>
 #endif
 
-class StatusPanel : public wxPanel
+#include "StatusSetter.h"
+
+class StatusPanel : public wxPanel, public StatusSetter
 {
 public:
     StatusPanel(wxWindow* parent);
-
-    enum JikkenState {
-        Off, RecReady, Recording, ReadyToDownload, Downloading
-    };
 
     void setStatus(JikkenState state, bool alsoHasDownload = false);
 private:

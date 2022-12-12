@@ -14,8 +14,11 @@
 #include "DownloadPanel.h"
 #include "StatusPanel.h"
 #include "CameraController.h"
+#include "JikkenGlobals.h"
 
 #include <wx/gbsizer.h>
+
+JikkenGlobals jikkenGlobals;
  
 class JikkenApp : public wxApp
 {
@@ -38,6 +41,9 @@ public:
         settingsPanel = new SettingsPanel(topPanel, &camCtrl);
         downloadPanel = new DownloadPanel(topPanel, &camCtrl);
         statusPanel = new StatusPanel(topPanel);
+
+        //Globals
+        jikkenGlobals = JikkenGlobals(statusPanel, configPanel);
 
         /**
          * The window frame has one child, topPanel. So all the other

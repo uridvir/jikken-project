@@ -1,56 +1,75 @@
 #include "PropertiesFrame.h"
+#include "JikkenGlobals.h"
 
-PropertiesFrame::PropertiesFrame(){
+extern JikkenGlobals jikkenGlobals;
+
+PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, "", wxPoint(50, 50), wxSize(200, 400)) {
     wxPanel* panel = new wxPanel(this);
 
-    wxGridSizer* grid = new wxGridSizer(propList.size() + 1, 2, wxSize(10, 10));
+    //Make elements
+    std::vector<std::string> visibleProps; //Props that are not of NODISPLAY type
+    const auto& props = jikkenGlobals.propertiesList();
+    std::copy_if(props.begin(), props.end(), std::back_inserter(visibleProps), [](auto prop) {
+        return jikkenGlobals.propertyType(prop) != "NODISPLAY";
+    });
+
+    wxGridSizer* grid = new wxGridSizer(visibleProps.size(), 2, wxSize(10, 10));
 
     std::map<std::string, std::function<std::string()>> propGetter;
 
-    for (auto line : propList){
-        std::string prop = line[0];
-        std::string type = line[1];
+    for (std::string prop : visibleProps){
+        std::string type = jikkenGlobals.propertyType(prop);
 
-        grid->Add(new wxStaticText(this, wxID_ANY, propDisplayName[prop]), 1, wxEXPAND);
+        grid->Add(new wxStaticText(panel, wxID_ANY, jikkenGlobals.propertyDisplayName(prop)), 1, wxEXPAND);
         
         if (type == "BOOL"){
-            wxChoice* choice = new wxChoice(this, wxID_ANY);
-            // choice->Append({"ON", "OFF"});
-            // choice->SetStringSelection(jikkenGlobals.jikkenPropertiesHolder.getProperty(prop));
+            wxChoice* choice = new wxChoice(panel, wxID_ANY);
+            choice->AppendString("ON");
+            choice->AppendString("OFF");
+            choice->SetStringSelection(jikkenGlobals.getProperty(prop));
             grid->Add(choice, 1, wxEXPAND);
-            propGetter.insert({prop, [choice]() -> std::string { return choice->GetStringSelection(); }});
+            propGetter.insert({prop, [choice]() { return std::string(choice->GetStringSelection()); }});
         }
         if (type == "TEXT"){
-            wxTextCtrl* text = new wxTextCtrl(this, wxID_ANY);
-            // text->SetValue(jikkenGlobals.jikkenPropertiesHolder.getProperty(prop));
+            wxTextCtrl* text = new wxTextCtrl(panel, wxID_ANY);
+            text->SetValue(jikkenGlobals.getProperty(prop));
             grid->Add(text, 1, wxEXPAND);
-            propGetter.insert({prop, [text]() -> std::string { return text->GetValue(); }});
+            propGetter.insert({prop, [text]() { return std::string(text->GetValue()); }});
         }
     }
 
-    wxButton* okButton = new wxButton(this, wxID_ANY, "&OK");
-    wxButton* cancelButton = new wxButton(this, wxID_ANY, "&キャンセル");
+    wxButton* okButton = new wxButton(panel, wxID_ANY, "&OK");
+    wxButton* cancelButton = new wxButton(panel, wxID_ANY, "&キャンセル");
 
+    //Panel sizer
     wxBoxSizer* vertical = new wxBoxSizer(wxVERTICAL);
     vertical->Add(grid, 1, wxEXPAND);
     vertical->AddSpacer(10);
 
     wxBoxSizer* buttons = new wxBoxSizer(wxHORIZONTAL);
-    buttons->Add(okButton, 0);
+    buttons->Add(okButton, 1, wxEXPAND);
     buttons->AddSpacer(10);
-    buttons->Add(cancelButton, 0);
+    buttons->Add(cancelButton, 1, wxEXPAND);
 
-    vertical->Add(buttons, 0);
+    vertical->Add(buttons, 0, wxEXPAND);
 
-    okButton->Bind(wxEVT_BUTTON, [this, propGetter]() {
-        for (auto line : propList) {
-            std::string prop = line[0];
-            // jikkenGlobals.jikkenPropertiesHolder.setProperty(prop, propGetter.at(prop)());
-        }
+    //Bind callbacks
+    okButton->Bind(wxEVT_BUTTON, [this, visibleProps, propGetter](auto event) {
+        for (auto prop : visibleProps)
+            jikkenGlobals.setProperty(prop, propGetter.at(prop)());
         Close();
     });
-    cancelButton->Bind(wxEVT_BUTTON, [this]() { Close(); });
+    cancelButton->Bind(wxEVT_BUTTON, [this](auto event) { Close(); });
 
-    SetSizer(vertical);
-    Layout();
+    //Setup panel
+    panel->SetSizer(vertical);
+    panel->Layout();
+
+    //Frame sizer
+    wxBoxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
+    frameSizer->Add(panel, 1, wxEXPAND);
+
+    //Setup frame
+    SetSizerAndFit(frameSizer);
+    CenterOnParent();
 }

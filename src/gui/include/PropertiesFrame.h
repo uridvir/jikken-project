@@ -8,13 +8,6 @@
 #include <map>
 
 class PropertiesFrame : public wxFrame {
-    const std::vector<char*[2]> propList = {
-        {"AUTODOWNLOAD", "BOOL"}
-    };
-    const std::vector<std::string> textPropList = {};
-    std::map<std::string, std::string> propDisplayName = {
-        {"AUTODOWNLOAD", "自動ダウンロード"}
-    };
 public:
-    PropertiesFrame();
+    PropertiesFrame(wxWindow* parent);
 };

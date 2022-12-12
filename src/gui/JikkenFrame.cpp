@@ -1,4 +1,5 @@
 #include "JikkenFrame.h"
+#include "PropertiesFrame.h"
 
 JikkenFrame::JikkenFrame()
     : wxFrame(nullptr, wxID_ANY, "じっけん", wxPoint(50, 50), wxSize(800, 600))
@@ -45,7 +46,8 @@ void JikkenFrame::OnAbout(wxCommandEvent& event)
 }
 
 void JikkenFrame::OnProperties(wxCommandEvent& event){
-
+    PropertiesFrame* propertiesFrame = new PropertiesFrame(this);
+    propertiesFrame->Show();
 }
 
 void JikkenFrame::OnBubble(wxCommandEvent& event){
