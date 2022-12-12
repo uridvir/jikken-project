@@ -3,7 +3,7 @@
 
 extern JikkenGlobals jikkenGlobals;
 
-PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, "", wxPoint(50, 50), wxSize(200, 400)) {
+PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, "プロパティ", wxPoint(50, 50), wxSize(300, 400)) {
     wxPanel* panel = new wxPanel(this);
 
     //Make elements
@@ -70,6 +70,6 @@ PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, "
     frameSizer->Add(panel, 1, wxEXPAND);
 
     //Setup frame
-    SetSizerAndFit(frameSizer);
+    SetSizer(frameSizer);
     CenterOnParent();
 }
