@@ -6,8 +6,8 @@ Implement CameraSerial (DONE)
 Implement CameraVideoStream (DONE)
 Add properties panel and JikkenGlobals (DONE)
 Mock test properties and JikkenGlobals (logging, etc.) (DONE)
-Implement camera setup sequence
-Implement camera record and download sequences
+Implement camera setup sequence (DONE)
+Implement camera record and download sequences (DONE)
 Temporarily remove video-clean and bubble-count command-line tools
 Refactor BubbleCounter and integrate into GUI codebase
 Add bubble-counting functionality

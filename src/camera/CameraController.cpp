@@ -154,6 +154,8 @@ void CameraController::download() {
     serial.execute(CameraCommand::Mode);
     setCameraProperty("DISPLAY", "ON1");
     serial.execute(CameraCommand::RecReady);
+
+    delete waitHandle, rec, cleaner;
 }
 
 void CameraController::assignMonitor(VideoSubscriber* video) { this->video = video; }
