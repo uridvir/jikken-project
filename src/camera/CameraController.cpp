@@ -59,39 +59,31 @@ CameraController::CameraController() {
 }
 
 bool CameraController::config() {
-    //config has already been called from GUI side
+    // config has already been called from GUI side
 
-    if (video && jikkenGlobals.videoPanelSubscribed){
+    if (video && jikkenGlobals.videoPanelSubscribed) {
         jikkenGlobals.videoPanelSubscribed = false;
-        stream.removeSubscriber(video); 
+        stream.removeSubscriber(video);
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-    // if (!serial.connect(jikkenGlobals.getProperty("SERIALPORT"))){
-    //     jikkenGlobals.log("Bad serial connection.");
-    //     jikkenGlobals.log("-----------------------");
-    //     return false;
-    // }
-    if (!stream.connect(jikkenGlobals.getProperty("CAMERAID"))){
-        jikkenGlobals.log("Bad video connection.");
-        jikkenGlobals.log("-----------------------");
-        return false;
-    }
+    if (!serial.connect(jikkenGlobals.getProperty("SERIALPORT"))) return false;
+    if (!stream.connect(jikkenGlobals.getProperty("CAMERAID"))) return false;
 
     /**
      * TODO: Add camera health check
-    */
+     */
 
-   std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    stream.addSubscriber(video);
+    jikkenGlobals.videoPanelSubscribed = true;
 
-   stream.addSubscriber(video);
-   jikkenGlobals.videoPanelSubscribed = true;
+    serial.execute(CameraCommand::RecReady);
 
     return true;
 }
 
 void CameraController::setCameraProperty(std::string prop, std::string value) {
     auto commands = menuRoot->setProperty(prop, value);
+    serial.execute(commands);
     std::cout << "CameraController sent commands ";
     auto commandToString = [](CameraCommand command) {
         switch (command) {
@@ -119,14 +111,24 @@ void CameraController::setCameraProperty(std::string prop, std::string value) {
     properties[prop] = value;
 }
 
-std::string CameraController::getCameraProperty(std::string prop) { 
-    return serial.query(prop, menuRoot->getOptions(prop));
-}
+std::string CameraController::getCameraProperty(std::string prop) { return serial.query(prop, menuRoot->getOptions(prop)); }
 
 void CameraController::record() {
-    std::cout << "CameraController recording... ";
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    std::cout << "done!" << std::endl;
+    std::string resolution = getCameraProperty("RESOLUTION");
+    std::string framerate = getCameraProperty("FRAMERATE");
+
+    const std::vector<std::string> validResolutions = {"512 x 480", "256 x 240", "128 x 120"};
+    const std::map<std::string, int> frameCount = {
+        {"512 x 480", 546},
+        {"256 x 240", 2184},
+        {"128 x 120", 8736}
+    };
+    double frames = frameCount.at(resolution);
+    double fps = std::atoi(framerate.c_str());
+    int recordTimeMillis = frames / fps * 1000;
+
+    serial.execute(CameraCommand::Trigger);
+    std::this_thread::sleep_for(std::chrono::milliseconds(recordTimeMillis + 50));
 }
 
 void CameraController::download() {
@@ -135,6 +137,4 @@ void CameraController::download() {
     std::cout << "done!" << std::endl;
 }
 
-void CameraController::assignMonitor(VideoSubscriber* video){
-    this->video = video;
-}
+void CameraController::assignMonitor(VideoSubscriber* video) { this->video = video; }
