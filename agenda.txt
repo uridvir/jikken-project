@@ -4,8 +4,8 @@ Implement implementors of CameraMenuItem (DONE)
 Mock test camera menu navigation logic (DONE)
 Implement CameraSerial (DONE)
 Implement CameraVideoStream (DONE)
-Add properties panel and JikkenGlobals
-Mock test properties and JikkenGlobals (logging, etc.)
+Add properties panel and JikkenGlobals (DONE)
+Mock test properties and JikkenGlobals (logging, etc.) (DONE)
 Implement camera setup sequence
 Implement camera record and download sequences
 Temporarily remove video-clean and bubble-count command-line tools

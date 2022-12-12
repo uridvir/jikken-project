@@ -106,7 +106,7 @@ void ConfigPanel::OnEdit(wxCommandEvent& event){
 
 void ConfigPanel::log(std::string text){
     std::string logText = this->logBox->GetValue();
-    logText += "\n" + text;
+    logText += text + "\n";
     this->logBox->SetValue(logText);
 }
 
