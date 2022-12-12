@@ -78,6 +78,11 @@ public:
         //Set up frame
         frame->SetSizerAndFit(frameSizer);
         frame->Show(true);
+
+        //Camera set up (act as though user has just clicked OK to try first batch of settings)
+        camCtrl.assignMonitor(videoPanel);
+        configPanel->set(jikkenGlobals.getProperty("SERIALPORT"), jikkenGlobals.getProperty("CAMERAID"));
+
         return true;
     }
 };

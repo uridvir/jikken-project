@@ -4,8 +4,14 @@
 #include <thread>
 
 bool CameraSerial::connect(std::string port) {
+    if (connected){
+        dev.closeDevice();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        dev = serialib();
+    } 
     dev.openDevice(port.c_str(), 4800, SERIAL_DATABITS_8, SERIAL_PARITY_NONE, SERIAL_STOPBITS_2);
-    return dev.isDeviceOpen();
+    connected = dev.isDeviceOpen();
+    return connected;
 }
 
 std::string CameraSerial::query(std::string prop, const std::vector<std::string>& options){

@@ -7,6 +7,7 @@
 
 class CameraSerial {
     serialib dev;
+    bool connected;
 public:
     bool connect(std::string port);
     std::string query(std::string prop, const std::vector<std::string>& options);

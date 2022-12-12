@@ -10,18 +10,26 @@ VideoPanel::VideoPanel(wxWindow* parent) : wxImagePanel(parent, wxID_ANY, wxDefa
     StretchImage(); //Let image panel library do resizing
 
     //Initial image
+    init();
+}
+
+void VideoPanel::init(){
     cv::Mat blueScreen(cv::Size(720, 480), CV_8UC3);
     blueScreen.setTo(cv::Scalar(255, 0, 0)); //OpenCV color order is Blue Green Red
 
     //Simply use the normal image set routine
-    setImageMat(blueScreen);
+    onReceiveMat(blueScreen);
 }
 
-void VideoPanel::setImageMat(const cv::Mat& mat){
+void VideoPanel::onReceiveMat(const cv::Mat& mat){
     //Convert from OpenCV's BGR to RGB
     cv::Mat rgb;
     cv::cvtColor(mat, rgb, cv::COLOR_BGR2RGB);
     //Get wxImage directly from raw image
     wxImage image = wxImage(mat.cols, mat.rows, rgb.data, true);
     SetImage(image.Copy());
+}
+
+void VideoPanel::onRemove() { // When the VideoPanel stops getting video frames
+    init();
 }

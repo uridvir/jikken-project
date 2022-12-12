@@ -8,6 +8,7 @@ target_link_libraries(jikken-camera PUBLIC
     jikken-cameramenu
     serialib
     ${OpenCV_LIBS}
+    jikken-properties
 )
 
 target_include_directories(jikken-camera PUBLIC

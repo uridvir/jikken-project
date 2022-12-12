@@ -1,16 +1,19 @@
 #include "ConfigPanel.h"
+#include "JikkenGlobals.h"
+
+extern JikkenGlobals jikkenGlobals;
 
 ConfigPanel::ConfigPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(parent){
     this->camCtrl = camCtrl;
 
     //Make elements
-    serialPort = new wxTextCtrl(this, wxID_ANY, "COM3");
+    serialPort = new wxTextCtrl(this, wxID_ANY /*, "COM3" */);
     serialLabel = new wxStaticText(this, wxID_ANY, "シリアルポート");
   
     cameraID = new wxChoice(this, wxID_ANY);
     for (int i = 0; i <= 10; i++)
         cameraID->Append(std::to_string(i));
-    cameraID->SetSelection(0);
+    // cameraID->SetSelection(0);
     cameraLabel = new wxStaticText(this, wxID_ANY, "カメラID");
 
     logBox = new wxTextCtrl(this, wxID_ANY, 
@@ -51,18 +54,21 @@ ConfigPanel::ConfigPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(
 
 void ConfigPanel::OnOK(wxCommandEvent& event){
     //Fetch config settings
-    std::string serial = this->serialPort->GetValue();
-    std::string id = this->cameraID->GetStringSelection();
+    jikkenGlobals.setProperty("SERIALPORT", std::string(serialPort->GetValue()));
+    jikkenGlobals.setProperty("CAMERID", std::string(cameraID->GetStringSelection()));
 
     //Lock
     this->serialPort->Enable(false);
     this->cameraID->Enable(false);
     okButton->Enable(false);
-    editButton->Enable(true);
+    editButton->Enable(false);
 
     //Try connect to camera
-    bool success = camCtrl->config(serial, id);
-    if (success) return;
+    bool success = camCtrl->config();
+    if (success) {
+        editButton->Enable(true);
+        return;
+    };
 
     //If failure, prompt user
     wxMessageDialog askNewSettings(this, //Parent window
@@ -107,6 +113,7 @@ void ConfigPanel::OnEdit(wxCommandEvent& event){
 void ConfigPanel::log(std::string text){
     std::string logText = this->logBox->GetValue();
     logText += text + "\n";
+    std::cout << logText << std::endl;
     this->logBox->SetValue(logText);
 }
 

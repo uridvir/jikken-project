@@ -9,6 +9,9 @@
 #include "CameraMenuWrapperProperty.h"
 #include "CameraSimpleProperty.h"
 #include "CameraToggleProperty.h"
+#include "JikkenGlobals.h"
+
+extern JikkenGlobals jikkenGlobals;
 
 CameraController::CameraController() {
     /**
@@ -55,10 +58,36 @@ CameraController::CameraController() {
     properties.insert({"DISPLAY", "ON1"});
 }
 
-bool CameraController::config(std::string serial, std::string id) {
-    bool ret = false;
-    std::cout << "CameraController config() called, returning " << std::to_string(ret) << std::endl;
-    return ret;
+bool CameraController::config() {
+    //config has already been called from GUI side
+
+    if (video && jikkenGlobals.videoPanelSubscribed){
+        jikkenGlobals.videoPanelSubscribed = false;
+        stream.removeSubscriber(video); 
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    if (!serial.connect(jikkenGlobals.getProperty("SERIALPORT"))){
+        jikkenGlobals.log("Bad serial connection.");
+        jikkenGlobals.log("-----------------------");
+        return false;
+    }
+    if (!stream.connect(jikkenGlobals.getProperty("CAMERAID"))){
+        jikkenGlobals.log("Bad video connection.");
+        jikkenGlobals.log("-----------------------");
+        return false;
+    }
+
+    /**
+     * TODO: Add camera health check
+    */
+
+   std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+   stream.addSubscriber(video);
+   jikkenGlobals.videoPanelSubscribed = true;
+
+    return true;
 }
 
 void CameraController::setCameraProperty(std::string prop, std::string value) {
@@ -90,7 +119,9 @@ void CameraController::setCameraProperty(std::string prop, std::string value) {
     properties[prop] = value;
 }
 
-std::string CameraController::getCameraProperty(std::string prop) { return properties.at(prop); }
+std::string CameraController::getCameraProperty(std::string prop) { 
+    return serial.query(prop, menuRoot->getOptions(prop));
+}
 
 void CameraController::record() {
     std::cout << "CameraController recording... ";
@@ -102,4 +133,8 @@ void CameraController::download() {
     std::cout << "CameraController downloading... ";
     std::this_thread::sleep_for(std::chrono::seconds(1));
     std::cout << "done!" << std::endl;
+}
+
+void CameraController::assignMonitor(VideoSubscriber* video){
+    this->video = video;
 }

@@ -32,4 +32,5 @@ public:
 
     // Properties that cannot be set in the properties panel
     bool cameraOnlyMode = false;
+    bool videoPanelSubscribed = false;
 };

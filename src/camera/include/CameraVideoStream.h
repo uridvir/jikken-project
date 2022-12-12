@@ -5,6 +5,7 @@
 #include <opencv2/highgui.hpp>
 
 class CameraVideoStream {
+    bool connected;
     cv::VideoCapture cap;
     std::vector<VideoSubscriber*> subscribers;
     std::thread loopThread;
@@ -16,4 +17,5 @@ public:
 private:
     void loop();
     void threadsafeAction(std::function<void()> action);
+    bool verifyTrulyOpen();
 };
