@@ -14,11 +14,19 @@ bool CameraSerial::connect(std::string port) {
     return connected;
 }
 
-std::string CameraSerial::query(std::string prop, const std::vector<std::string>& options){
+int CameraSerial::query(std::string prop){
     dev.writeChar(queryCode[prop]);
     char c;
     dev.readChar(&c, 100);
-    int index = c;
+    return c;
+}
+
+std::string CameraSerial::query(std::string prop, const std::vector<std::string>& options){
+    int index = query(prop);
+
+    if (prop == "SHUTTERSPEED") //Shutterspeed querying is relative for some reason, wtf???
+        index += query("FRAMERATE"); //Original index was relative to current FPS
+    
     return options[index];
 }
 

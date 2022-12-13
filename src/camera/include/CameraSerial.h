@@ -10,6 +10,7 @@ class CameraSerial {
     bool connected;
 public:
     bool connect(std::string port);
+    int query(std::string prop);
     std::string query(std::string prop, const std::vector<std::string>& options);
     void execute(CameraCommand cmd);
     void execute(std::vector<CameraCommand> cmds);
