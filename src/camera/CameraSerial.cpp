@@ -27,6 +27,9 @@ std::string CameraSerial::query(std::string prop, const std::vector<std::string>
     if (prop == "SHUTTERSPEED") //Shutterspeed querying is relative for some reason, wtf???
         index += query("FRAMERATE"); //Original index was relative to current FPS
     
+    if (prop == "RESOLUTION") //Resolution options are backwards, again wtf???
+        return options[(options.size() - 1) - index];
+    
     return options[index];
 }
 
