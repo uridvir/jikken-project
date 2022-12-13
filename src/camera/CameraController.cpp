@@ -66,8 +66,10 @@ bool CameraController::config() {
         stream.removeSubscriber(video);
     }
 
-    if (!serial.connect(jikkenGlobals.getProperty("SERIALPORT"))) return false;
-    if (!stream.connect(jikkenGlobals.getProperty("CAMERAID"))) return false;
+    bool serialSuccess = serial.connect(jikkenGlobals.getProperty("SERIALPORT"));
+    bool streamSuccess = stream.connect(jikkenGlobals.getProperty("CAMERAID"));
+
+    if (!serialSuccess || !streamSuccess) return false;
 
     /**
      * TODO: Add camera health check

@@ -55,7 +55,7 @@ ConfigPanel::ConfigPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(
 void ConfigPanel::OnOK(wxCommandEvent& event){
     //Fetch config settings
     jikkenGlobals.setProperty("SERIALPORT", std::string(serialPort->GetValue()));
-    jikkenGlobals.setProperty("CAMERID", std::string(cameraID->GetStringSelection()));
+    jikkenGlobals.setProperty("CAMERAID", std::string(cameraID->GetStringSelection()));
 
     //Lock
     this->serialPort->Enable(false);
