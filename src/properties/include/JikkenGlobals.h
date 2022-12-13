@@ -3,13 +3,16 @@
 #include "JikkenPropertiesHolder.h"
 #include "Logger.h"
 #include "StatusSetter.h"
+#include "MainManager.h"
 
 class JikkenGlobals {
+    MainManager* manager;
     StatusSetter* statusSetter;
     Logger* logger;
     std::unique_ptr<JikkenPropertiesHolder> jikkenPropertiesHolder;
 public:
-    JikkenGlobals(StatusSetter* statusSetter, Logger* logger) {
+    JikkenGlobals(MainManager* manager, StatusSetter* statusSetter, Logger* logger) {
+        this->manager = manager;
         this->statusSetter = statusSetter;
         this->logger = logger;
         jikkenPropertiesHolder = std::unique_ptr<JikkenPropertiesHolder>(new JikkenPropertiesHolder());
@@ -18,6 +21,7 @@ public:
         this->statusSetter = nullptr;
         this->logger = nullptr;
     }
+    void update(MainManager::Message msg) { manager->update(msg); }
     void log(std::string text) { logger->log(text); }
     void setStatus(StatusSetter::JikkenState state, bool alsoHasDownload = false) {
         statusSetter->setStatus(state, alsoHasDownload);
@@ -31,6 +35,7 @@ public:
     const std::string& propertyDisplayName(std::string prop) { return jikkenPropertiesHolder->getPropertyDisplayName(prop); }
 
     // Properties that cannot be set in the properties panel
+    bool inSetup = true;
     bool cameraOnlyMode = false;
     bool videoPanelSubscribed = false;
 };

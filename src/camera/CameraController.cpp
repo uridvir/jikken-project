@@ -80,6 +80,8 @@ bool CameraController::config() {
 
     serial.execute(CameraCommand::RecReady);
 
+    jikkenGlobals.update(MainManager::Message::CameraSetupComplete);
+
     return true;
 }
 

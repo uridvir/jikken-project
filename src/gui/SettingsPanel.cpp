@@ -50,16 +50,19 @@ SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
 void SettingsPanel::OnFramerateChange(wxCommandEvent& event){
     std::string framerateValue = framerate->GetStringSelection();
     camCtrl->setCameraProperty("FRAMERATE", framerateValue);
+    updateFields();
 }
 
 void SettingsPanel::OnShutterspeedChange(wxCommandEvent& event){
     std::string shutterspeedValue = shutterspeed->GetStringSelection();
     camCtrl->setCameraProperty("SHUTTERSPEED", shutterspeedValue);
+    updateFields();
 }
 
 void SettingsPanel::OnTriggerModeChange(wxCommandEvent& event){
     std::string triggerModeValue = triggerMode->GetStringSelection();
     camCtrl->setCameraProperty("TRIGGERMODE", triggerModeValue);
+    updateFields();
 }
 
 void SettingsPanel::updateFields(){

@@ -20,7 +20,7 @@
 
 JikkenGlobals jikkenGlobals;
  
-class JikkenApp : public wxApp
+class JikkenApp : public wxApp, public MainManager
 {
     JikkenFrame* frame;
     wxPanel* topPanel;
@@ -43,7 +43,7 @@ public:
         statusPanel = new StatusPanel(topPanel);
 
         //Globals
-        jikkenGlobals = JikkenGlobals(statusPanel, configPanel);
+        jikkenGlobals = JikkenGlobals(this, statusPanel, configPanel);
 
         /**
          * The window frame has one child, topPanel. So all the other
@@ -84,6 +84,14 @@ public:
         configPanel->set(jikkenGlobals.getProperty("SERIALPORT"), jikkenGlobals.getProperty("CAMERAID"));
 
         return true;
+    }
+
+    void update(Message msg) override {
+        switch(msg){
+            case CameraSetupComplete:
+                settingsPanel->updateFields();
+                break;
+        }
     }
 };
 
