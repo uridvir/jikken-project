@@ -49,13 +49,6 @@ CameraController::CameraController() {
         this);
     shutterspeedMenu->addChild(mainMenu);
     menuRoot = std::shared_ptr<CameraMenuItem>(shutterspeedMenu);
-
-    // Debug
-    properties.insert({"FRAMERATE", "1000"});
-    properties.insert({"RESOLUTION", "256 x 240"});
-    properties.insert({"SHUTTERSPEED", "1/1000"});
-    properties.insert({"TRIGGERMODE", "START"});
-    properties.insert({"DISPLAY", "ON1"});
 }
 
 bool CameraController::config() {
@@ -96,33 +89,8 @@ void CameraController::setCameraProperty(std::string prop, std::string value) {
         std::this_thread::sleep_for(std::chrono::seconds(6)); //Wait for message to go away
         serial.execute(std::vector<CameraCommand>(menuClick3 + 1, commands.end()));
     }
-    else serial.execute(commands);
 
-    std::cout << "CameraController sent commands ";
-    auto commandToString = [](CameraCommand command) {
-        switch (command) {
-            case CameraCommand::RecReady:
-                return "RecReady";
-            case CameraCommand::Trigger:
-                return "Trigger";
-            case CameraCommand::Mode:
-                return "Mode";
-            case CameraCommand::Play:
-                return "Play";
-            case CameraCommand::Esc:
-                return "Esc";
-            case CameraCommand::Down:
-                return "Down";
-            case CameraCommand::MenuEnter:
-                return "MenuEnter";
-            case CameraCommand::Up:
-                return "Up";
-        }
-        return "";
-    };
-    for (auto command : commands) std::cout << commandToString(command) << " ";
-    std::cout << std::endl;
-    properties[prop] = value;
+    else serial.execute(commands);
 }
 
 std::string CameraController::getCameraProperty(std::string prop) { return serial.query(prop, menuRoot->getOptions(prop)); }

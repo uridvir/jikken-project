@@ -10,8 +10,6 @@
 #include "CameraVideoCleaner.h"
 
 class CameraController : public CameraQuerier {
-    std::map<std::string, std::string> properties; //Only for debug
-
     CameraSerial serial;
     CameraVideoStream stream;
     std::shared_ptr<CameraMenuItem> menuRoot;
