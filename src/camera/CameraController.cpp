@@ -91,6 +91,19 @@ void CameraController::setCameraProperty(std::string prop, std::string value) {
     }
 
     else serial.execute(commands);
+
+    std::this_thread::sleep_for(std::chrono::seconds(3)); //PLEASE WAIT... screen
+    serial.execute(CameraCommand::RecReady);
+
+    if (prop == "FRAMERATE") {
+        const std::map<std::string, std::string> correctResolution = {
+            {"1000", "256 x 240"},
+            {"2000", "128 x 120"},
+            {"3000", "128 x 120"}
+        };
+        std::string framerate = value;
+        setCameraProperty("RESOLUTION", correctResolution.at(framerate));
+    }
 }
 
 std::string CameraController::getCameraProperty(std::string prop) { return serial.query(prop, menuRoot->getOptions(prop)); }
