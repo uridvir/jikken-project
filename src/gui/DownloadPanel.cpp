@@ -6,6 +6,7 @@ DownloadPanel::DownloadPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
     //Make elements
     recordButton = new wxButton(this, wxID_ANY, "レコード");
     downloadButton = new wxButton(this, wxID_ANY, "ダウンロード");
+    recordButton->Enable(false);
     downloadButton->Enable(false);
 
     //Sizer
@@ -48,4 +49,9 @@ void DownloadPanel::OnDownload(wxCommandEvent& event){
     //Unlock
     downloadButton->Enable(false);
     recordButton->Enable(true);
+}
+
+void DownloadPanel::enable(bool choice){
+    recordButton->Enable(choice);
+    downloadButton->Enable(false);
 }

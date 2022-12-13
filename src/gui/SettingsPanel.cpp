@@ -42,6 +42,11 @@ SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
     shutterspeed->Bind(wxEVT_CHOICE, &SettingsPanel::OnShutterspeedChange, this);
     triggerMode->Bind(wxEVT_CHOICE, &SettingsPanel::OnTriggerModeChange, this);
 
+    //Disable until camera is set up
+    framerate->Enable(false);
+    shutterspeed->Enable(false);
+    triggerMode->Enable(false);
+
     //Setup panel
     SetSizer(sizer);
     Layout();
@@ -65,7 +70,13 @@ void SettingsPanel::OnTriggerModeChange(wxCommandEvent& event){
     updateFields();
 }
 
-void SettingsPanel::updateFields(){
+void SettingsPanel::updateFields(bool enable){
+    framerate->Enable(enable);
+    shutterspeed->Enable(enable);
+    triggerMode->Enable(enable);
+
+    if (!enable) return;
+
     framerate->SetStringSelection(camCtrl->getCameraProperty("FRAMERATE"));
     resolution->SetValue(camCtrl->getCameraProperty("RESOLUTION"));
     shutterspeed->SetStringSelection(camCtrl->getCameraProperty("SHUTTERSPEED"));

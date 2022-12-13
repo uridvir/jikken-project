@@ -23,5 +23,5 @@ public:
     void OnFramerateChange(wxCommandEvent& event);
     void OnShutterspeedChange(wxCommandEvent& event);
     void OnTriggerModeChange(wxCommandEvent& event);
-    void updateFields();
+    void updateFields(bool enable = true);
 };

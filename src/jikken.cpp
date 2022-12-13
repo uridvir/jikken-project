@@ -90,6 +90,14 @@ public:
         switch(msg){
             case CameraSetupComplete:
                 settingsPanel->updateFields();
+                downloadPanel->enable(true);
+                break;
+            case CameraOnlyMode:
+                settingsPanel->updateFields(false); //Disable controls
+                downloadPanel->enable(false);
+                break;
+            case NormalQuit:
+                frame->OnExit(wxCommandEvent());
                 break;
         }
     }

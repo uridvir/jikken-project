@@ -98,7 +98,14 @@ void ConfigPanel::OnOK(wxCommandEvent& event){
             OnEdit(wxCommandEvent());
             break;
         }
-        //TODO: askNoCamera logic
+
+        int noCamera = askNoCamera.ShowModal();
+        if (noCamera == wxID_YES) jikkenGlobals.update(MainManager::Message::CameraOnlyMode);
+        if (noCamera == wxID_NO) jikkenGlobals.update(MainManager::Message::NormalQuit);
+        if (noCamera != wxID_CANCEL){
+            editButton->Enable(true);
+            break;
+        }
     }
 }
 

@@ -35,7 +35,7 @@ public:
     const std::string& propertyDisplayName(std::string prop) { return jikkenPropertiesHolder->getPropertyDisplayName(prop); }
 
     // Properties that cannot be set in the properties panel
-    bool inSetup = true;
-    bool cameraOnlyMode = false;
+    // bool inSetup = true;
+    // bool cameraOnlyMode = false;
     bool videoPanelSubscribed = false;
 };

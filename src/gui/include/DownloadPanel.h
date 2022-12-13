@@ -16,4 +16,5 @@ public:
     DownloadPanel(wxWindow* parent, CameraController* camCtrl);
     void OnRecord(wxCommandEvent& event);
     void OnDownload(wxCommandEvent& event);
+    void enable(bool choice);
 };
