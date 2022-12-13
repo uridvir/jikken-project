@@ -12,8 +12,8 @@ Temporarily remove video-clean and bubble-count command-line tools
 Refactor BubbleCounter and integrate into GUI codebase
 Add bubble-counting functionality
 Test bubble-counting
-Add no-camera mode
-Refactor VideoCleaner and integrate into GUI codebase
+Add no-camera mode (DONE)
+Refactor VideoCleaner and integrate into GUI codebase (DONE)
 First integration test on client hardware
 Add full status panel and logging support
 Replace meme text in about dialog, etc. (make it professional/presentable)
