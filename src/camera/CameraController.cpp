@@ -21,7 +21,7 @@ CameraController::CameraController() {
     mainMenu->addChild(
         new CameraSimpleProperty("TRIGGERMODE", {"START", "CENTER", "END", "RANDOM"}, false, this));  // ESC on bottom
     mainMenu->addChild(new CameraSimpleProperty(
-        "FRAMERATE", {"30", "60", "125", "250", "500", "1000", "2000", "3000", "5000", "10000"}, false, this));  // ESC on bottom
+        "FRAMERATE", {"30", "60", "125", "250", "500", "1000", "2000", "3000", "5000", "10000"}, true, this));  // ESC on top
     mainMenu->addChild(new CameraSimpleProperty(
         "RESOLUTION", {"512 x 480", "512 x 240", "256 x 240", "256 x 120", "128 x 120", "128 x 80", "128 x 34"}, false,
         this));  // ESC on bottom
@@ -86,7 +86,7 @@ bool CameraController::config() {
 }
 
 void CameraController::setCameraProperty(std::string prop, std::string value) {
-    auto commands = menuRoot->setProperty(prop, value);
+    std::vector<CameraCommand> commands = menuRoot->setProperty(prop, value);
     serial.execute(commands);
     std::cout << "CameraController sent commands ";
     auto commandToString = [](CameraCommand command) {
