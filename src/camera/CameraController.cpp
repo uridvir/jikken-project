@@ -86,8 +86,18 @@ bool CameraController::config() {
 }
 
 void CameraController::setCameraProperty(std::string prop, std::string value) {
-    std::vector<CameraCommand> commands = menuRoot->setProperty(prop, value);
-    serial.execute(commands);
+    auto commands = menuRoot->setProperty(prop, value);
+
+    if (prop == "FRAMERATE" && value == "3000") { //Overheat protection message interrupts normal navigation
+        auto it = commands.begin();
+        for (int i = 0; i < 3; i++) it = ++std::find(it, commands.end(), CameraCommand::MenuEnter);
+        auto menuClick3 = it - 1; // Main menu (#1), framerate (#2), select 3000fps (#3)
+        serial.execute(std::vector<CameraCommand>(commands.begin(), menuClick3 + 1));
+        std::this_thread::sleep_for(std::chrono::seconds(6)); //Wait for message to go away
+        serial.execute(std::vector<CameraCommand>(menuClick3 + 1, commands.end()));
+    }
+    else serial.execute(commands);
+
     std::cout << "CameraController sent commands ";
     auto commandToString = [](CameraCommand command) {
         switch (command) {
