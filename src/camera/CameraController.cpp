@@ -71,8 +71,6 @@ bool CameraController::config() {
     stream.addSubscriber(video);
     jikkenGlobals.videoPanelSubscribed = true;
 
-    serial.execute(CameraCommand::RecReady);
-
     jikkenGlobals.update(MainManager::Message::CameraSetupComplete);
 
     return true;
@@ -105,8 +103,6 @@ void CameraController::setCameraProperty(std::string prop, std::string value) {
         std::string framerate = value;
         setCameraProperty("RESOLUTION", correctResolution.at(framerate));
     }
-
-    serial.execute(CameraCommand::RecReady);
 }
 
 std::string CameraController::getCameraProperty(std::string prop) { return serial.query(prop, menuRoot->getOptions(prop)); }
@@ -121,9 +117,9 @@ void CameraController::record() {
     double fps = std::atoi(framerate.c_str());
     int recordTimeMillis = frames / fps * 1000;
 
+    serial.execute(CameraCommand::RecReady);
     serial.execute(CameraCommand::Trigger);
     std::this_thread::sleep_for(std::chrono::milliseconds(recordTimeMillis + 50));
-    serial.execute(CameraCommand::RecReady);
 }
 
 void CameraController::download() {
