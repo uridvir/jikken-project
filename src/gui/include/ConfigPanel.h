@@ -24,4 +24,5 @@ public:
     void OnEdit(wxCommandEvent& event);
     void log(std::string text) override;
     void set(std::string serial, std::string id); //Differs from class diagram
+    void enableEdit(bool choice); //Differs from class diagram
 };

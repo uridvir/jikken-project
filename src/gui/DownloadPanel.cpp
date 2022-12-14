@@ -53,5 +53,11 @@ void DownloadPanel::OnDownload(wxCommandEvent& event){
 
 void DownloadPanel::enable(bool choice){
     recordButton->Enable(choice);
-    downloadButton->Enable(false);
+    
+    static bool downloadPreviouslyEnabled;
+    if (!choice) {
+        downloadPreviouslyEnabled = downloadButton->IsEnabled();
+        downloadButton->Enable(false);
+    }
+    else downloadButton->Enable(downloadPreviouslyEnabled);
 }

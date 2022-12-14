@@ -129,3 +129,7 @@ void ConfigPanel::set(std::string serial, std::string id){
     this->cameraID->SetStringSelection(id);
     OnOK(wxCommandEvent()); //Pretend OK button was pressed, and give dummy event
 }
+
+void ConfigPanel::enableEdit(bool choice){
+    this->editButton->Enable(choice);
+}

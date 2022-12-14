@@ -99,6 +99,16 @@ public:
             case NormalQuit:
                 frame->OnExit(wxCommandEvent());
                 break;
+            case UnlockAllCameraControls:
+                configPanel->enableEdit(true);
+                settingsPanel->updateFields();
+                downloadPanel->enable(true);
+                break;
+            case LockAllCameraControls:
+                configPanel->enableEdit(false);
+                settingsPanel->updateFields(false);
+                downloadPanel->enable(false);
+                break;
         }
     }
 };
