@@ -137,7 +137,7 @@ void CameraController::record() {
 void CameraController::download() {
     // Setup for cleaner
     std::mutex* waitHandle = new std::mutex();
-    cv::Rect crop(cv::Point((720 - 512) / 2, 0), cv::Size(512, 480));
+    cv::Rect crop((720 - 512) / 2, 0, 512, 480);
 
     std::string resolution = getCameraProperty("RESOLUTION");
     const std::map<std::string, cv::Size> sizeMap = {
