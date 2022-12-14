@@ -122,7 +122,7 @@ void CameraController::record() {
     double fps = std::atoi(framerate.c_str());
     int recordTimeMillis = frames / fps * 1000;
 
-    serial.execute(CameraCommand::RecReady);
+    if (serial.query("RECREADY") == 0) serial.execute(CameraCommand::RecReady);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     serial.execute(CameraCommand::Trigger);
     std::this_thread::sleep_for(std::chrono::milliseconds(recordTimeMillis + 50));
