@@ -79,6 +79,8 @@ bool CameraController::config() {
 }
 
 void CameraController::setCameraProperty(std::string prop, std::string value) {
+    if (getCameraProperty(prop) == value) return;
+
     auto commands = menuRoot->setProperty(prop, value);
 
     if (prop == "FRAMERATE" && value == "3000") { //Overheat protection message interrupts normal navigation
@@ -92,8 +94,7 @@ void CameraController::setCameraProperty(std::string prop, std::string value) {
 
     else serial.execute(commands);
 
-    std::this_thread::sleep_for(std::chrono::seconds(3)); //PLEASE WAIT... screen
-    serial.execute(CameraCommand::RecReady);
+    std::this_thread::sleep_for(std::chrono::seconds(1)); //PLEASE WAIT... screen
 
     if (prop == "FRAMERATE") {
         const std::map<std::string, std::string> correctResolution = {
@@ -104,6 +105,8 @@ void CameraController::setCameraProperty(std::string prop, std::string value) {
         std::string framerate = value;
         setCameraProperty("RESOLUTION", correctResolution.at(framerate));
     }
+
+    serial.execute(CameraCommand::RecReady);
 }
 
 std::string CameraController::getCameraProperty(std::string prop) { return serial.query(prop, menuRoot->getOptions(prop)); }
