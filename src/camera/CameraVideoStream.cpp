@@ -31,6 +31,7 @@ void CameraVideoStream::threadsafeAction(std::function<void()> action) {
     if (cap.isOpened()) mutex.unlock();
 }
 
+//TODO: Proper exit to avoid terminate exception
 void CameraVideoStream::loop() {
     while (true) {
         {

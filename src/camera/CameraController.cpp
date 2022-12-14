@@ -71,6 +71,11 @@ bool CameraController::config() {
     stream.addSubscriber(video);
     jikkenGlobals.videoPanelSubscribed = true;
 
+    //Make sure display text is on
+    if (getCameraProperty("DISPLAY") != "ON1" && serial.query("MODE") == 0)
+        serial.execute(CameraCommand::Mode);
+    setCameraProperty("DISPLAY", "ON1");
+
     jikkenGlobals.update(MainManager::Message::CameraSetupComplete);
 
     return true;
