@@ -46,17 +46,21 @@ void DownloadPanel::OnRecord(wxCommandEvent& event) {
 }
 
 void DownloadPanel::OnDownload(wxCommandEvent& event) {
-    // Lock
-    recordButton->Enable(false);
-    downloadButton->Enable(false);
+    std::thread([this]() {
+        // Lock
+        recordButton->Enable(false);
+        downloadButton->Enable(false);
+        jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
 
-    camCtrl->download();
+        camCtrl->download();
 
-    // TODO: File save logic
+        // TODO: File save logic
 
-    // Unlock
-    downloadButton->Enable(false);
-    recordButton->Enable(true);
+        // Unlock
+        recordButton->Enable(true);
+        downloadButton->Enable(false);
+        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+    }).detach();
 }
 
 void DownloadPanel::enable(bool choice) {
