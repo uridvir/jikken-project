@@ -13,6 +13,7 @@ target_link_libraries(jikken
     jikken-camera
     wxImagePanel
     jikken-properties
+    bubble
 )
 
 add_executable(video_test video_test.cpp)

@@ -12,6 +12,7 @@ target_link_libraries(jikken-gui PUBLIC
     ${wxWidgets_LIBRARIES}
     jikken-camera
     jikken-properties
+    bubble
 )
 
 target_include_directories(jikken-gui PUBLIC

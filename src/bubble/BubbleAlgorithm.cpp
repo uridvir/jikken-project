@@ -1,4 +1,4 @@
-#include "BubbleCounter.h"
+#include "BubbleAlgorithm.h"
 
 #include <iostream>
 #include <map>
@@ -7,25 +7,93 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video/background_segm.hpp>
 #include <set>
+#include <fstream>
+#include <wx/filefn.h>
+
+#include "JikkenGlobals.h"
+
+extern JikkenGlobals jikkenGlobals;
 
 /**
- * Helper functions
+ * Front-end of BubbleAlgorithm
 */
 
-cv::Mat upscale(cv::Mat& frame) {
-    cv::Mat upscaled;
-    int newWidth = 512;
-    int newHeight = frame.rows * newWidth / frame.cols;
-    cv::resize(frame, upscaled, cv::Size(newWidth, newHeight));
-    return upscaled;
+struct AlgorithmResult {
+    int bubbleCount;
+    std::vector<std::string> pictureNames;
+    std::map<std::string, cv::Mat> pictures;
+};
+
+// Parameters
+int analyzeTotal;
+
+//Forward declaring the algorithm
+std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmResult& moreData);
+
+void BubbleAlgorithm::run(std::string filename){
+    cv::VideoCapture videoIn(filename);
+
+    size_t lastDot = filename.find_last_of(".");
+    std::string folderPath = filename.substr(0, lastDot);
+    wxMkDir(folderPath);
+
+    std::ofstream test(folderPath + "/test.txt");
+    test.close();
+
+    std::ofstream csv(folderPath + "/data.csv");
+    csv << "Num" << "," << "Count" << "," << std::endl;
+
+    analyzeTotal = 10;
+
+    int frameCount = videoIn.get(cv::CAP_PROP_FRAME_COUNT);
+    if (frameCount == 0) {
+        jikkenGlobals.log("エラー！！！");
+        jikkenGlobals.log("大変！ビデオで０フレームがあります。じっけんプログラムには、壊れないファイルをあげてください。");
+        return;
+    }
+
+    int interval = frameCount / analyzeTotal;
+    int frameCounter = 1, analyzeCounter = 0;
+
+    // std::cout << "Interval is " << interval << " frames" << std::endl;
+
+    const int frameBufferSize = 15;
+    std::vector<cv::Mat> frames;
+
+    cv::Mat frame;
+
+    for (videoIn.read(frame); !frame.empty() && analyzeCounter < analyzeTotal; videoIn.read(frame)) {
+        if (frames.size() == frameBufferSize) frames.erase(frames.begin());
+        cv::Mat greyFrame;
+        cv::cvtColor(frame, greyFrame, cv::COLOR_BGR2GRAY);
+        frames.push_back(greyFrame.clone());
+
+        if (frameCounter % interval == 0) {
+            analyzeCounter++;
+
+            // std::cout << "Frame " << frameCounter << ", ";
+            
+            AlgorithmResult moreData;
+            auto circles = algorithm(frames, moreData);
+
+            csv << analyzeCounter << "," << moreData.bubbleCount << "," << std::endl;
+            for (std::string pictureName : moreData.pictureNames){
+                cv::Mat resized;
+                cv::resize(moreData.pictures[pictureName], resized, cv::Size(512, 480));
+                cv::imwrite(folderPath + "/" + pictureName + std::to_string(analyzeCounter) + ".png", resized);
+            }
+            
+        }
+        frameCounter++;
+    }
 }
 
 /**
  * Algorithm top level
  */
 
-cv::Mat getShapes(std::vector<cv::Mat>& frames);
-std::vector<cv::Point> getBrightSpots(cv::Mat& frame, bool adaptive, int dilateIterations);
+cv::Mat getShapes(const std::vector<cv::Mat>& frames);
+std::vector<cv::Point> getBrightSpots(const cv::Mat& frame, bool adaptive, int dilateIterations);
 
 struct ComponentInfo {
     int bubbleCount;
@@ -37,11 +105,11 @@ struct ComponentInfo {
     cv::Mat labels, stats, centroids;
 };
 
-ComponentInfo getComponentInfo(cv::Mat& shapes, std::vector<cv::Point>& brightSpots);
+ComponentInfo getComponentInfo(const cv::Mat& shapes, const std::vector<cv::Point>& brightSpots);
 std::vector<cv::Vec3f> getCircles(ComponentInfo& ci);
-void makeOverlay(cv::Mat& frame, cv::Mat& shapes, ComponentInfo& ci);
+void makeOverlay(const cv::Mat& frame, cv::Mat& shapes, ComponentInfo& ci, cv::Mat& overlay);
 
-std::vector<cv::Vec3f> algorithm(std::vector<cv::Mat>& frames) {
+std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmResult& moreData) {
     // Bright spot detection parameters
     bool adaptive = true;
     int dilateIterations = 2;
@@ -51,7 +119,26 @@ std::vector<cv::Vec3f> algorithm(std::vector<cv::Mat>& frames) {
     ComponentInfo ci = getComponentInfo(shapes, brightSpots);
     std::vector<cv::Vec3f> circles = getCircles(ci);
 
-    makeOverlay(frames.back(), shapes, ci);
+    cv::Mat overlay;
+    makeOverlay(frames.back(), shapes, ci, overlay);
+
+    cv::Mat foundCircles;
+    cv::cvtColor(frames.back(), foundCircles, cv::COLOR_GRAY2BGR);
+    // std::cout << ", found " << circles.size() << " circles" << std::endl;
+    for (cv::Vec3f circle : circles) {
+        cv::Point center(circle[0], circle[1]);
+        int radius = circle[2];
+        cv::circle(foundCircles, center, radius, cv::Scalar(0, 0, 255));
+    }
+
+    moreData.pictureNames = {"frame", "overlay", "circles", "shapes"};
+    moreData.pictures = {
+        {"frame", frames.back()},
+        {"overlay", overlay},
+        {"circles", foundCircles},
+        {"shapes", shapes}
+    };
+    moreData.bubbleCount = ci.bubbleCount;
 
     return circles;
 }
@@ -60,7 +147,7 @@ std::vector<cv::Vec3f> algorithm(std::vector<cv::Mat>& frames) {
  * Algorithm subroutines
  */
 
-cv::Mat getShapes(std::vector<cv::Mat>& frames) {
+cv::Mat getShapes(const std::vector<cv::Mat>& frames) {
     cv::Mat diff, blur, thresh;
 
     auto subtractor = cv::createBackgroundSubtractorKNN();
@@ -75,7 +162,7 @@ cv::Mat getShapes(std::vector<cv::Mat>& frames) {
     return thresh;
 }
 
-std::vector<cv::Point> getBrightSpots(cv::Mat& frame, bool adaptive, int dilateIterations) {
+std::vector<cv::Point> getBrightSpots(const cv::Mat& frame, bool adaptive, int dilateIterations) {
     cv::Mat blur, thresh, dilated, precontour;
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Point> spots;
@@ -106,7 +193,7 @@ std::vector<cv::Point> getBrightSpots(cv::Mat& frame, bool adaptive, int dilateI
     return spots;
 }
 
-ComponentInfo getComponentInfo(cv::Mat& shapes, std::vector<cv::Point>& brightSpots) {
+ComponentInfo getComponentInfo(const cv::Mat& shapes, const std::vector<cv::Point>& brightSpots) {
     ComponentInfo ci;
 
     ci.numLabels = cv::connectedComponentsWithStats(shapes, ci.labels, ci.stats, ci.centroids);
@@ -221,8 +308,8 @@ void addComplexBubbleCircles(std::vector<cv::Vec3f>& circles, ComponentInfo& ci,
     }
 }
 
-void makeOverlay(cv::Mat& frame, cv::Mat& shapes, ComponentInfo& ci) {
-    cv::Mat overlay, canny;
+void makeOverlay(const cv::Mat& frame, cv::Mat& shapes, ComponentInfo& ci, cv::Mat& overlay) {
+    cv::Mat canny;
     cv::cvtColor(frame, overlay, cv::COLOR_GRAY2BGR);
 
     for (int label = 1; label < ci.numLabels; label++)
@@ -234,96 +321,4 @@ void makeOverlay(cv::Mat& frame, cv::Mat& shapes, ComponentInfo& ci) {
     double upper = std::min(255.0, (1 + sigma) * mean);
     cv::Canny(shapes, canny, lower, upper);
     overlay.setTo(cv::Scalar(255, 0, 0), canny);
-
-    cv::imshow("Overlay", upscale(overlay));
-    cv::waitKey(5);
-}
-
-/**
- * This part reads video and calls the algorithm
- */
-
-void analyze(std::vector<cv::Mat>& frames, cv::Size newSize) {
-    std::cout << "analyze called";
-    cv::imshow("Frame", frames.back());
-    cv::waitKey(5);
-
-    // Resizing
-    std::vector<cv::Mat> resizedFrames;
-    int i = 1;
-    for (cv::Mat frame : frames) {
-        cv::Mat resized;
-        cv::resize(frame, resized, newSize, 0, 0, cv::INTER_AREA);
-        cv::cvtColor(resized, resized, cv::COLOR_BGR2GRAY);
-        resizedFrames.push_back(resized);
-        //cv::imshow(std::string("Resized " + std::to_string(i)), resized);
-        //cv::waitKey(5);
-        i++;
-    }
-
-    // Algorithm
-    auto circles = algorithm(resizedFrames);
-
-    // Display results
-    cv::Mat foundCircles;
-    cv::cvtColor(resizedFrames.back(), foundCircles, cv::COLOR_GRAY2BGR);
-    std::cout << ", found " << circles.size() << " circles" << std::endl;
-    for (cv::Vec3f circle : circles) {
-        cv::Point center(circle[0], circle[1]);
-        int radius = circle[2];
-        cv::circle(foundCircles, center, radius, cv::Scalar(0, 0, 255));
-    }
-
-    cv::imshow("Found circles", upscale(foundCircles));
-    cv::waitKey(100000);
-}
-
-int getWidth(int frameCount) {
-    const std::set<int> validFrameCounts = {546, 2184, 8736};  // From Kodak Motion Corder manual, page 3.5
-    const std::map<int, int> widthMap = {{546, 512}, {2184, 256}, {8736, 128}};
-    const int slop = 5;  // Allow for a few skipped frames etc... video encoding is fucky lol
-
-    for (int valid : validFrameCounts)
-        if (std::abs(frameCount - valid) <= slop) return widthMap.at(valid);
-
-    std::cerr << "Invalid frame count! Cannot pick frame width." << std::endl;
-    return -1;
-}
-
-void BubbleCounter::run(cv::VideoCapture& videoIn) {
-    const int analyzeTotal = 10;
-
-    int frameCount = videoIn.get(cv::CAP_PROP_FRAME_COUNT);
-    if (frameCount == 0) {
-        std::cerr << "Invalid frame count of 0! Please check that the video file is not corrupted." << std::endl;
-        std::cerr << "大変！ビデオで０フレームがあります。bubble-countには、壊れないファイルをあげてください。" << std::endl;
-        return;
-    }
-
-    int interval = frameCount / analyzeTotal;
-    int frameCounter = 1, analyzeCounter = 0;
-
-    std::cout << "Interval is " << interval << " frames" << std::endl;
-
-    const int frameBufferSize = 15;
-    std::vector<cv::Mat> frames;
-
-    cv::Mat frame;
-    videoIn.read(frame);
-
-    int newWidth = getWidth(frameCount);
-    int newHeight = frame.rows * newWidth / frame.cols;
-    cv::Size newSize(newWidth, newHeight);
-
-    for (; !frame.empty() && analyzeCounter < analyzeTotal; videoIn.read(frame)) {
-        if (frames.size() == frameBufferSize) frames.erase(frames.begin());
-        frames.push_back(frame.clone());
-
-        if (frameCounter % interval == 0) {
-            std::cout << "Frame " << frameCounter << ", ";
-            analyze(frames, newSize);
-            analyzeCounter++;
-        }
-        frameCounter++;
-    }
 }
