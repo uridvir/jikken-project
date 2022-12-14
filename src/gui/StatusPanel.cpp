@@ -40,10 +40,12 @@ void StatusPanel::setStatus(JikkenState state, bool alsoHasDownload) {
     downloading->SetBackgroundColour(GetBackgroundColour());
 
     //"Also download" option
-    if (alsoHasDownload) readyToDownload->SetBackgroundColour(wxColour("yellow"));
+    this->alsoHasDownload = alsoHasDownload;
+    if (this->alsoHasDownload) readyToDownload->SetBackgroundColour(wxColour("yellow"));
 
     // Fill in the new state
-    switch (state) {
+    this->state = state;
+    switch (this->state) {
         case Off:
             off->SetBackgroundColour(wxColour("green"));
             break;
@@ -63,4 +65,9 @@ void StatusPanel::setStatus(JikkenState state, bool alsoHasDownload) {
 
     // Since we just changed elements
     Refresh();
+}
+
+StatusPanel::JikkenState StatusPanel::getStatus(bool& alsoHasDownload) {
+    alsoHasDownload = this->alsoHasDownload;
+    return state;
 }

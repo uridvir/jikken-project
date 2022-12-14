@@ -82,12 +82,13 @@ public:
         //Camera set up (act as though user has just clicked OK to try first batch of settings)
         camCtrl.assignMonitor(videoPanel);
         configPanel->set(jikkenGlobals.getProperty("SERIALPORT"), jikkenGlobals.getProperty("CAMERAID"));
+        frame->Bind(wxEVT_CLOSE_WINDOW, [this](auto event) { frame->OnExit(wxCommandEvent()); });
 
         return true;
     }
 
     bool update(Message msg, bool runHealthCheck) override {
-        if (msg == CameraOnlyMode || msg == NormalQuit || msg == HarshWarningQuit)
+        if (msg == CameraOnlyMode || msg == Quit)
             runHealthCheck = false;
         if (runHealthCheck && !camCtrl.healthCheck()) {
             settingsPanel->updateFields(false); //Disable controls
@@ -102,7 +103,7 @@ public:
                 settingsPanel->updateFields(false); //Disable controls
                 downloadPanel->enable(false);
                 break;
-            case NormalQuit:
+            case Quit:
                 frame->OnExit(wxCommandEvent());
                 break;
             case CameraSetupComplete:

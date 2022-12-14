@@ -13,6 +13,9 @@ public:
     StatusPanel(wxWindow* parent);
 
     void setStatus(JikkenState state, bool alsoHasDownload = false);
+    JikkenState getStatus(bool& alsoHasDownload);
 private:
     wxButton *off, *readyToRecord, *recording, *readyToDownload, *downloading;
+    JikkenState state = Off;
+    bool alsoHasDownload = false;
 };

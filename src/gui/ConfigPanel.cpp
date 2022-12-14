@@ -111,7 +111,7 @@ void ConfigPanel::OnOK(wxCommandEvent& event){
 
             jikkenGlobals.update(MainManager::Message::CameraOnlyMode);
         } 
-        if (noCamera == wxID_NO) jikkenGlobals.update(MainManager::Message::NormalQuit);
+        if (noCamera == wxID_NO) jikkenGlobals.update(MainManager::Message::Quit);
         if (noCamera != wxID_CANCEL){
             editButton->Enable(true);
             break;

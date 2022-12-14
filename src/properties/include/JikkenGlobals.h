@@ -26,6 +26,7 @@ public:
     void setStatus(StatusSetter::JikkenState state, bool alsoHasDownload = false) {
         statusSetter->setStatus(state, alsoHasDownload);
     }
+    StatusSetter::JikkenState getStatus(bool& alsoHasDownload) { return statusSetter->getStatus(alsoHasDownload); }
     void setProperty(std::string prop, std::string value) { jikkenPropertiesHolder->setProperty(prop, value); }
     const std::string& getProperty(std::string prop) { return jikkenPropertiesHolder->getProperty(prop); }
 

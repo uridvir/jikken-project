@@ -10,7 +10,7 @@ Implement camera setup sequence (DONE)
 Implement camera record and download sequences (DONE)
 Temporarily remove video-clean and bubble-count command-line tools (DONE)
 Add basic camera safety check (DONE)
-Add quit logic
+Add quit logic (DONE)
 Refactor BubbleCounter and integrate into GUI codebase
 Add bubble-counting functionality
 Test bubble-counting

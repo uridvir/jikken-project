@@ -46,7 +46,31 @@ JikkenFrame::JikkenFrame()
  
 void JikkenFrame::OnExit(wxCommandEvent& event)
 {
-    Close(true);
+    bool alsoHasDownload;
+    StatusSetter::JikkenState state = jikkenGlobals.getStatus(alsoHasDownload);
+
+    const std::string harshWarning = "ただ今、プログラムから出ることが大変！"; //Right now, exiting the program is perilous!
+    const std::string downloadAvailable = "もうダウンロード出来るビデオがありますよ！"; //Video that can be downloaded already exists!
+    const std::string currentDownload = "今こそ、プログラムがビデオをダウンロードしています！"; //Now, the program is downloading video!
+    const std::string youWillLose = "プログラムから出たら全部を落とします。"; //If you exit, it will all be lost.
+    const std::string exitQuestion = "プログラムから出ますか？"; //Exit the program?
+
+    std::string message;
+    if (alsoHasDownload || state == StatusSetter::Downloading) message += harshWarning;
+    if (alsoHasDownload) message += downloadAvailable;
+    if (state == StatusSetter::Downloading) message += currentDownload;
+    if (alsoHasDownload || state == StatusSetter::Downloading) message += youWillLose;
+    message += exitQuestion;
+
+    wxMessageDialog exitPrompt(this, //Parent window
+        wxString::FromUTF8(message),
+        L"プログラム出事", //Caption ("Program quit")
+        wxYES_NO //Style
+    );
+    exitPrompt.SetYesNoLabels("&はい", "&いいえ");
+    int quit = exitPrompt.ShowModal();
+
+    if (quit == wxID_YES) Destroy();
 }
  
 void JikkenFrame::OnAbout(wxCommandEvent& event)
