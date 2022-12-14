@@ -1,5 +1,7 @@
 #include "DownloadPanel.h"
 
+#include <fstream>
+
 #include "JikkenGlobals.h"
 
 extern JikkenGlobals jikkenGlobals;
@@ -38,14 +40,14 @@ void DownloadPanel::OnRecord(wxCommandEvent& event) {
 
         camCtrl->record();
 
-        // TODO: Auto-download logic
-
         // Unlock
         if (!jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls)) return;
         recordButton->Enable(true);
         downloadButton->Enable(true);
 
         jikkenGlobals.setStatus(StatusSetter::ReadyToRecord, true);
+
+        if (jikkenGlobals.getProperty("AUTODOWNLOAD") == "ON") OnDownload(wxCommandEvent());
     }).detach();
 }
 
@@ -60,7 +62,12 @@ void DownloadPanel::OnDownload(wxCommandEvent& event) {
 
         camCtrl->download();
 
-        // TODO: File save logic
+        wxFileDialog savePrompt(this, L"レコードしたビデオをセーブ", "", "", "AVIのビデオファイル (*.avi)|*.avi", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+        while (savePrompt.ShowModal() == wxID_CANCEL); //Cancel is not allowed
+        std::ifstream in("vid.avi", std::ios::binary);
+        std::string selectedFile = savePrompt.GetPath();
+        std::ofstream out(selectedFile, std::ios::binary);
+        out << in.rdbuf();
 
         // Unlock
         recordButton->Enable(true);
