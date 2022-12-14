@@ -18,7 +18,7 @@ JikkenFrame::JikkenFrame()
     menuFile->Append(ID_PROPERTIES, L"&プロパティ\tCtrl-P",
         L"自動ダウンロード、バブル分析オプション、など．．．");
     menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT, L"出る");
+    menuFile->Append(wxID_EXIT, L"出る"); //TODO: Add status bar text in Japanese
 
     wxMenu* menuBubble = new wxMenu();
     menuBubble->Append(ID_BUBBLE, L"ファイルを開く\tCtrl-B",
@@ -33,7 +33,7 @@ JikkenFrame::JikkenFrame()
     menuBar->Append(menuBubble, L"&バブル分析");
     menuBar->Append(menuHelp, L"&ヘルプ");
  
-    SetMenuBar( menuBar );
+    SetMenuBar(menuBar);
  
     CreateStatusBar();
     SetStatusText(L"じっけんプログラムには．．．ただ今！！");
@@ -58,7 +58,6 @@ void JikkenFrame::OnAbout(wxCommandEvent& event)
 void JikkenFrame::OnProperties(wxCommandEvent& event){
     PropertiesFrame* propertiesFrame = new PropertiesFrame(this);
     propertiesFrame->Show();
-    jikkenGlobals.log("Opened properties window."); //Debug
 }
 
 void JikkenFrame::OnBubble(wxCommandEvent& event){
