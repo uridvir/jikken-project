@@ -3,7 +3,7 @@
 
 extern JikkenGlobals jikkenGlobals;
 
-PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, "プロパティ", wxPoint(50, 50), wxSize(300, 400)) {
+PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, L"プロパティ", wxPoint(50, 50), wxSize(300, 400)) {
     wxPanel* panel = new wxPanel(this);
 
     //Make elements
@@ -20,7 +20,10 @@ PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, "
     for (std::string prop : visibleProps){
         std::string type = jikkenGlobals.propertyType(prop);
 
-        grid->Add(new wxStaticText(panel, wxID_ANY, jikkenGlobals.propertyDisplayName(prop)), 1, wxEXPAND);
+        //Japanese text makes locale/formatting harder
+        wxString localeSafeLabel = wxString::FromUTF8(jikkenGlobals.propertyDisplayName(prop));
+
+        grid->Add(new wxStaticText(panel, wxID_ANY, localeSafeLabel), 1, wxEXPAND);
         
         if (type == "BOOL"){
             wxChoice* choice = new wxChoice(panel, wxID_ANY);
@@ -39,7 +42,7 @@ PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, "
     }
 
     wxButton* okButton = new wxButton(panel, wxID_ANY, "&OK");
-    wxButton* cancelButton = new wxButton(panel, wxID_ANY, "&キャンセル");
+    wxButton* cancelButton = new wxButton(panel, wxID_ANY, L"&キャンセル");
 
     //Panel sizer
     wxBoxSizer* vertical = new wxBoxSizer(wxVERTICAL);

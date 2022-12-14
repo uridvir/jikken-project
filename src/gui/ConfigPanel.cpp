@@ -8,13 +8,13 @@ ConfigPanel::ConfigPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(
 
     //Make elements
     serialPort = new wxTextCtrl(this, wxID_ANY /*, "COM3" */);
-    serialLabel = new wxStaticText(this, wxID_ANY, "シリアルポート");
+    serialLabel = new wxStaticText(this, wxID_ANY, L"シリアルポート");
   
     cameraID = new wxChoice(this, wxID_ANY);
     for (int i = 0; i <= 10; i++)
         cameraID->Append(std::to_string(i));
     // cameraID->SetSelection(0);
-    cameraLabel = new wxStaticText(this, wxID_ANY, "カメラID");
+    cameraLabel = new wxStaticText(this, wxID_ANY, L"カメラID");
 
     logBox = new wxTextCtrl(this, wxID_ANY, 
         "", wxDefaultPosition, wxDefaultSize, //Use defaults
@@ -22,7 +22,7 @@ ConfigPanel::ConfigPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(
     );
 
     okButton = new wxButton(this, wxID_ANY, "OK");
-    editButton = new wxButton(this, wxID_ANY, "エディット");
+    editButton = new wxButton(this, wxID_ANY, L"エディット");
     editButton->Enable(false);
 
     //Sizer
@@ -75,9 +75,9 @@ void ConfigPanel::OnOK(wxCommandEvent& event){
         /**
          * The camera could not be set up. The serial port and camera ID don't work. Try new settings?
         */ 
-        "カメラには、セットアップを出来ませんでした。シリアルポートとカメラIDには、行けませんから。新しいオプションをしてみますか？",
+        L"カメラには、セットアップを出来ませんでした。シリアルポートとカメラIDには、行けませんから。新しいオプションをしてみますか？",
         // ^ message
-        "カメラセットアップ", //Caption ("Camera Setup")
+        L"カメラセットアップ", //Caption ("Camera Setup")
         wxYES_NO //Style
     );
     askNewSettings.SetYesNoLabels("&はい", "&いいえ");
@@ -86,11 +86,11 @@ void ConfigPanel::OnOK(wxCommandEvent& event){
         /**
          * Start the program without the camera? You can also quit the program now.
         */
-        "じっけんプログラムがカメラなし始まって宜しいですか？良かったら、今プログラムから出られます。", //Message
-        "カメラセットアップ", //Caption ("Camera Setup")
+        L"じっけんプログラムがカメラなし始まって宜しいですか？良かったら、今プログラムから出られます。", //Message
+        L"カメラセットアップ", //Caption ("Camera Setup")
         wxYES_NO | wxCANCEL //Style
     );
-    askNoCamera.SetYesNoCancelLabels("&はい", "&出る", "&前へ");
+    askNoCamera.SetYesNoCancelLabels(L"&はい", L"&出る", L"&前へ");
 
     while (true){
         int newSettings = askNewSettings.ShowModal();

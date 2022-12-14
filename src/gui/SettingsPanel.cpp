@@ -7,24 +7,24 @@ SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
     framerate = new wxChoice(this, wxID_ANY);
     framerate->Append({"1000", "2000", "3000"});
     framerate->SetSelection(0);
-    framerateLabel = new wxStaticText(this, wxID_ANY, "フレーム/秒");
+    framerateLabel = new wxStaticText(this, wxID_ANY, L"フレーム/秒");
 
     resolution = new wxTextCtrl(this, wxID_ANY,
         "256 x 240", //Text
         wxDefaultPosition, wxDefaultSize, //Use defaults
         wxTE_READONLY //Style
     );
-    resolutionLabel = new wxStaticText(this, wxID_ANY, "解像度");
+    resolutionLabel = new wxStaticText(this, wxID_ANY, L"解像度");
 
     shutterspeed = new wxChoice(this, wxID_ANY);
     shutterspeed->Append({"1/1000", "1/2000", "1/3000"});
     shutterspeed->SetSelection(0);
-    shutterspeedLabel = new wxStaticText(this, wxID_ANY, "シャッター速度");
+    shutterspeedLabel = new wxStaticText(this, wxID_ANY, L"シャッター速度");
 
     triggerMode = new wxChoice(this, wxID_ANY);
     triggerMode->Append({"START", "CENTER", "END"});
     triggerMode->SetSelection(0);
-    triggerLabel = new wxStaticText(this, wxID_ANY, "トリガー類");
+    triggerLabel = new wxStaticText(this, wxID_ANY, L"トリガー類");
 
     //Sizer
     wxGridSizer* sizer = new wxGridSizer(4, 2, wxSize(30, 10));

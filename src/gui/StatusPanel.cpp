@@ -2,15 +2,15 @@
 
 StatusPanel::StatusPanel(wxWindow* parent) : wxPanel(parent) {
     // Make elements
-    off = new wxButton(this, wxID_ANY, "切");
+    off = new wxButton(this, wxID_ANY, L"切");
     off->Enable(false);
-    recReady = new wxButton(this, wxID_ANY, "レコード可");
+    recReady = new wxButton(this, wxID_ANY, L"レコード可");
     recReady->Enable(false);
-    recording = new wxButton(this, wxID_ANY, "レコード中");
+    recording = new wxButton(this, wxID_ANY, L"レコード中");
     recording->Enable(false);
-    readyToDownload = new wxButton(this, wxID_ANY, "ダウンロード可");
+    readyToDownload = new wxButton(this, wxID_ANY, L"ダウンロード可");
     readyToDownload->Enable(false);
-    downloading = new wxButton(this, wxID_ANY, "ダウンロード中");
+    downloading = new wxButton(this, wxID_ANY, L"ダウンロード中");
     downloading->Enable(false);
 
     // Sizer
