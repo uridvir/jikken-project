@@ -34,14 +34,14 @@ void DownloadPanel::OnRecord(wxCommandEvent& event) {
         // Lock
         recordButton->Enable(false);
         downloadButton->Enable(false);
-        jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
+        if (!jikkenGlobals.update(MainManager::Message::LockAllCameraControls)) return;
 
         camCtrl->record();
 
         // TODO: Auto-download logic
 
         // Unlock
-        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+        if (!jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls)) return;
         recordButton->Enable(true);
         downloadButton->Enable(true);
 
@@ -56,7 +56,7 @@ void DownloadPanel::OnDownload(wxCommandEvent& event) {
         // Lock
         recordButton->Enable(false);
         downloadButton->Enable(false);
-        jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
+        if (!jikkenGlobals.update(MainManager::Message::LockAllCameraControls)) return;
 
         camCtrl->download();
 
@@ -65,7 +65,7 @@ void DownloadPanel::OnDownload(wxCommandEvent& event) {
         // Unlock
         recordButton->Enable(true);
         downloadButton->Enable(false);
-        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+        if (!jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls)) return;
 
         jikkenGlobals.setStatus(StatusSetter::ReadyToRecord);
     }).detach();

@@ -21,7 +21,7 @@ public:
         this->statusSetter = nullptr;
         this->logger = nullptr;
     }
-    void update(MainManager::Message msg) { manager->update(msg); }
+    bool update(MainManager::Message msg, bool runHealthCheck = true) { return manager->update(msg, runHealthCheck); }
     void log(std::string text) { logger->log(text); }
     void setStatus(StatusSetter::JikkenState state, bool alsoHasDownload = false) {
         statusSetter->setStatus(state, alsoHasDownload);

@@ -1,8 +1,8 @@
 class MainManager {
 public:
     enum Message {
-        CameraSetupComplete, CameraOnlyMode, NormalQuit, LockAllCameraControls, UnlockAllCameraControls
+        CameraSetupComplete, CameraOnlyMode, NormalQuit, HarshWarningQuit, LockAllCameraControls, UnlockAllCameraControls
     };
 
-    virtual void update(Message msg) = 0;
+    virtual bool update(Message msg, bool runHealthCheck = true) = 0;
 };

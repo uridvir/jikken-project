@@ -57,29 +57,29 @@ SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
 }
 
 void SettingsPanel::OnFramerateChange(wxCommandEvent& event) {
-    jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
     std::thread([this]() {
+        if (!jikkenGlobals.update(MainManager::Message::LockAllCameraControls)) return;
         std::string framerateValue = framerate->GetStringSelection();
         camCtrl->setCameraProperty("FRAMERATE", framerateValue);
-        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+        if (!jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls)) return;
     }).detach();
 }
 
 void SettingsPanel::OnShutterspeedChange(wxCommandEvent& event) {
-    jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
     std::thread([this]() {
+        if (!jikkenGlobals.update(MainManager::Message::LockAllCameraControls)) return;
         std::string shutterspeedValue = shutterspeed->GetStringSelection();
         camCtrl->setCameraProperty("SHUTTERSPEED", shutterspeedValue);
-        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+        if (!jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls)) return;
     }).detach();
 }
 
 void SettingsPanel::OnTriggerModeChange(wxCommandEvent& event) {
-    jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
     std::thread([this]() {
+        if (!jikkenGlobals.update(MainManager::Message::LockAllCameraControls)) return;
         std::string triggerModeValue = triggerMode->GetStringSelection();
         camCtrl->setCameraProperty("TRIGGERMODE", triggerModeValue);
-        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+        if (!jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls)) return;
     }).detach();
 }
 

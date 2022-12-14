@@ -22,7 +22,8 @@ private:
         {"SHUTTERSPEED", 0xA6},
         {"DISPLAY", 0xBA},
         {"MODE", 0x83},
-        {"RECREADY", 0x84}
+        {"RECREADY", 0x84},
+        {"IDNUMBER", 0x8B}
     };
     std::map<CameraCommand, char> commandCode = {
         {CameraCommand::Play, 0x65},

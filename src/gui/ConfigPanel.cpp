@@ -120,7 +120,7 @@ void ConfigPanel::OnOK(wxCommandEvent& event){
 }
 
 void ConfigPanel::OnEdit(wxCommandEvent& event){
-    jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
+    jikkenGlobals.update(MainManager::Message::LockAllCameraControls, false);
 
     //Unlock
     this->serialPort->Enable(true);

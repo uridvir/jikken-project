@@ -86,12 +86,18 @@ public:
         return true;
     }
 
-    void update(Message msg) override {
+    bool update(Message msg, bool runHealthCheck) override {
+        if (msg == CameraOnlyMode || msg == NormalQuit || msg == HarshWarningQuit)
+            runHealthCheck = false;
+        if (runHealthCheck && !camCtrl.healthCheck()) {
+            settingsPanel->updateFields(false); //Disable controls
+            downloadPanel->enable(false);
+            jikkenGlobals.setStatus(StatusSetter::Off);
+            configPanel->OnOK(wxCommandEvent()); //Trigger config again
+            return false;
+        }
+    
         switch(msg){
-            case CameraSetupComplete:
-                settingsPanel->updateFields();
-                downloadPanel->enable(true);
-                break;
             case CameraOnlyMode:
                 settingsPanel->updateFields(false); //Disable controls
                 downloadPanel->enable(false);
@@ -99,6 +105,10 @@ public:
             case NormalQuit:
                 frame->OnExit(wxCommandEvent());
                 break;
+            case CameraSetupComplete:
+                settingsPanel->updateFields();
+                downloadPanel->enable(true);
+                return true;
             case UnlockAllCameraControls:
                 configPanel->enableEdit(true);
                 settingsPanel->updateFields();
@@ -110,6 +120,8 @@ public:
                 downloadPanel->enable(false);
                 break;
         }
+
+        return true;
     }
 };
 

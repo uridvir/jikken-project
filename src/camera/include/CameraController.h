@@ -16,6 +16,7 @@ class CameraController : public CameraQuerier {
     VideoSubscriber* video;
 public:
     CameraController();
+    bool healthCheck();
     bool config();
     void setCameraProperty(std::string prop, std::string value);
     std::string getCameraProperty(std::string prop) override; //Differs from class diagram

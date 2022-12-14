@@ -9,6 +9,8 @@ Mock test properties and JikkenGlobals (logging, etc.) (DONE)
 Implement camera setup sequence (DONE)
 Implement camera record and download sequences (DONE)
 Temporarily remove video-clean and bubble-count command-line tools (DONE)
+Add basic camera safety check (DONE)
+Add quit logic
 Refactor BubbleCounter and integrate into GUI codebase
 Add bubble-counting functionality
 Test bubble-counting

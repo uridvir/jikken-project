@@ -51,6 +51,16 @@ CameraController::CameraController() {
     menuRoot = std::shared_ptr<CameraMenuItem>(shutterspeedMenu);
 }
 
+bool CameraController::healthCheck() {
+    // This is assuming that serial is set up, though might not be connected to camera
+
+    // setCameraProperty("IDNUMBER_CLEAR", "");
+    int idnumber = serial.query("IDNUMBER");
+    if (idnumber < 1 || 99 < idnumber) return false;
+
+    return true;
+}
+
 bool CameraController::config() {
     // config has already been called from GUI side
 
@@ -64,9 +74,7 @@ bool CameraController::config() {
 
     if (!serialSuccess || !streamSuccess) return false;
 
-    /**
-     * TODO: Add camera health check
-     */
+    if (!healthCheck()) return false;
 
     stream.addSubscriber(video);
     jikkenGlobals.videoPanelSubscribed = true;

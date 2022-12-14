@@ -16,7 +16,7 @@ bool CameraSerial::connect(std::string port) {
 
 int CameraSerial::query(std::string prop){
     dev.writeChar(queryCode[prop]);
-    char c;
+    char c = 0;
     dev.readChar(&c, 100);
     return c;
 }
