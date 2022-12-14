@@ -94,6 +94,7 @@ void JikkenFrame::OnBubble(wxCommandEvent& event) {
         if (openPrompt.ShowModal() != wxID_CANCEL) {
             std::string selectedFile = openPrompt.GetPath();
             BubbleAlgorithm::run(selectedFile);
+            wxMessageBox(L"バブル分析が出来ました！", "", wxOK | wxICON_INFORMATION);
         }
     }).detach();
 }

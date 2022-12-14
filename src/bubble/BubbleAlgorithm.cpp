@@ -37,11 +37,8 @@ void BubbleAlgorithm::run(std::string filename){
     std::string folderPath = filename.substr(0, lastDot);
     wxMkDir(folderPath);
 
-    std::ofstream test(folderPath + "/test.txt");
-    test.close();
-
-    std::ofstream csv(folderPath + "/data.csv");
-    csv << "Num" << "," << "Count" << "," << std::endl;
+    std::ofstream csv(folderPath + "/データ.csv");
+    csv << "Analysis #" << "," << "Bubble count" << "," << std::endl;
 
     analyzeTotal = 10;
 
@@ -55,7 +52,7 @@ void BubbleAlgorithm::run(std::string filename){
     int interval = frameCount / analyzeTotal;
     int frameCounter = 1, analyzeCounter = 0;
 
-    // std::cout << "Interval is " << interval << " frames" << std::endl;
+    jikkenGlobals.log("バブル分析：インターバル　" + std::to_string(interval) + "　フレームである");
 
     const int frameBufferSize = 15;
     std::vector<cv::Mat> frames;
@@ -70,11 +67,12 @@ void BubbleAlgorithm::run(std::string filename){
 
         if (frameCounter % interval == 0) {
             analyzeCounter++;
-
-            // std::cout << "Frame " << frameCounter << ", ";
             
             AlgorithmResult moreData;
             auto circles = algorithm(frames, moreData);
+
+            jikkenGlobals.log("分析　" + std::to_string(analyzeCounter) + "番！     " 
+                + std::to_string(moreData.bubbleCount) + "つバブルあります。");
 
             csv << analyzeCounter << "," << moreData.bubbleCount << "," << std::endl;
             for (std::string pictureName : moreData.pictureNames){
@@ -131,12 +129,12 @@ std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmRe
         cv::circle(foundCircles, center, radius, cv::Scalar(0, 0, 255));
     }
 
-    moreData.pictureNames = {"frame", "overlay", "circles", "shapes"};
+    moreData.pictureNames = {"フレーム", "オバレイ", "サークル", "シェープ"};
     moreData.pictures = {
-        {"frame", frames.back()},
-        {"overlay", overlay},
-        {"circles", foundCircles},
-        {"shapes", shapes}
+        {"フレーム", frames.back()},
+        {"オバレイ", overlay},
+        {"サークル", foundCircles},
+        {"シェープ", shapes}
     };
     moreData.bubbleCount = ci.bubbleCount;
 
