@@ -4,7 +4,7 @@
 
 class CameraToggleProperty : public CameraSimpleProperty {
    public:
-    CameraToggleProperty(std::string name, const std::vector<std::string>& options, CameraQuerier* camCtrl)
+    CameraToggleProperty(std::string name, const std::vector<std::string>& options, CameraQuerier* camQuer)
         : CameraSimpleProperty(name, options, false, camQuer) {}
     std::vector<CameraCommand> setProperty(std::string prop, std::string value) override {
         if (!canSetProperty(prop)) return {};
@@ -18,8 +18,10 @@ class CameraToggleProperty : public CameraSimpleProperty {
         int destIndex = std::distance(options.begin(), std::find(options.begin(), options.end(), dest));
 
         // We cannot go backwards, so must wrap
-        int dist = (destIndex - currentIndex) % options.size();
-        for (int i = 0; i < dist; i++) commands.push_back(CameraCommand::MenuEnter);
+        while (currentIndex != destIndex) {
+            commands.push_back(CameraCommand::MenuEnter);
+            currentIndex = (currentIndex + 1) % options.size();
+        }
 
         return commands;
     }

@@ -36,9 +36,9 @@ CameraController::CameraController() {
 
     CameraMenu* systemMenu = new CameraMenu(true);
     systemMenu->addBlank(2);  // Edge enhancement and zoom tabs
-    CameraMenu* displayMenu = new CameraMenu(false);
+    CameraMenu* displayMenu = new CameraMenu(true);
     displayMenu->addBlank();  // Date/time toggle
-    displayMenu->addChild(new CameraToggleProperty("DISPLAY", {"ON1", "ON2", "OFF"}, this));
+    displayMenu->addChild(new CameraToggleProperty("DISPLAY", {"OFF", "ON1", "ON2"}, this));
     systemMenu->addChild(displayMenu);
     systemMenu->addBlank(5);  // Date/time set, external IO, Color Temp, Others, Status
     // TOOD: Check number of child in system menu on the hardware
