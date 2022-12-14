@@ -1,18 +1,22 @@
 #include "SettingsPanel.h"
 
-SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(parent){
+#include "JikkenGlobals.h"
+
+extern JikkenGlobals jikkenGlobals;
+
+SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(parent) {
     this->camCtrl = camCtrl;
 
-    //Make elements
+    // Make elements
     framerate = new wxChoice(this, wxID_ANY);
     framerate->Append({"1000", "2000", "3000"});
     framerate->SetSelection(0);
     framerateLabel = new wxStaticText(this, wxID_ANY, L"フレーム/秒");
 
     resolution = new wxTextCtrl(this, wxID_ANY,
-        "256 x 240", //Text
-        wxDefaultPosition, wxDefaultSize, //Use defaults
-        wxTE_READONLY //Style
+                                "256 x 240",                       // Text
+                                wxDefaultPosition, wxDefaultSize,  // Use defaults
+                                wxTE_READONLY                      // Style
     );
     resolutionLabel = new wxStaticText(this, wxID_ANY, L"解像度");
 
@@ -26,7 +30,7 @@ SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
     triggerMode->SetSelection(0);
     triggerLabel = new wxStaticText(this, wxID_ANY, L"トリガー類");
 
-    //Sizer
+    // Sizer
     wxGridSizer* sizer = new wxGridSizer(4, 2, wxSize(30, 10));
     sizer->Add(framerate, 1, wxEXPAND);
     sizer->Add(framerateLabel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
@@ -37,40 +41,49 @@ SettingsPanel::SettingsPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
     sizer->Add(triggerMode, 1, wxEXPAND);
     sizer->Add(triggerLabel, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
 
-    //Setup callbacks
+    // Setup callbacks
     framerate->Bind(wxEVT_CHOICE, &SettingsPanel::OnFramerateChange, this);
     shutterspeed->Bind(wxEVT_CHOICE, &SettingsPanel::OnShutterspeedChange, this);
     triggerMode->Bind(wxEVT_CHOICE, &SettingsPanel::OnTriggerModeChange, this);
 
-    //Disable until camera is set up
+    // Disable until camera is set up
     framerate->Enable(false);
     shutterspeed->Enable(false);
     triggerMode->Enable(false);
 
-    //Setup panel
+    // Setup panel
     SetSizer(sizer);
     Layout();
 }
 
-void SettingsPanel::OnFramerateChange(wxCommandEvent& event){
-    std::string framerateValue = framerate->GetStringSelection();
-    camCtrl->setCameraProperty("FRAMERATE", framerateValue);
-    updateFields();
+void SettingsPanel::OnFramerateChange(wxCommandEvent& event) {
+    jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
+    std::thread([this]() {
+        std::string framerateValue = framerate->GetStringSelection();
+        camCtrl->setCameraProperty("FRAMERATE", framerateValue);
+        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+    }).detach();
 }
 
-void SettingsPanel::OnShutterspeedChange(wxCommandEvent& event){
-    std::string shutterspeedValue = shutterspeed->GetStringSelection();
-    camCtrl->setCameraProperty("SHUTTERSPEED", shutterspeedValue);
-    updateFields();
+void SettingsPanel::OnShutterspeedChange(wxCommandEvent& event) {
+    jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
+    std::thread([this]() {
+        std::string shutterspeedValue = shutterspeed->GetStringSelection();
+        camCtrl->setCameraProperty("SHUTTERSPEED", shutterspeedValue);
+        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+    }).detach();
 }
 
-void SettingsPanel::OnTriggerModeChange(wxCommandEvent& event){
-    std::string triggerModeValue = triggerMode->GetStringSelection();
-    camCtrl->setCameraProperty("TRIGGERMODE", triggerModeValue);
-    updateFields();
+void SettingsPanel::OnTriggerModeChange(wxCommandEvent& event) {
+    jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
+    std::thread([this]() {
+        std::string triggerModeValue = triggerMode->GetStringSelection();
+        camCtrl->setCameraProperty("TRIGGERMODE", triggerModeValue);
+        jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+    }).detach();
 }
 
-void SettingsPanel::updateFields(bool enable){
+void SettingsPanel::updateFields(bool enable) {
     framerate->Enable(enable);
     shutterspeed->Enable(enable);
     triggerMode->Enable(enable);
