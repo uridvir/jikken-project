@@ -8,7 +8,7 @@ Add properties panel and JikkenGlobals (DONE)
 Mock test properties and JikkenGlobals (logging, etc.) (DONE)
 Implement camera setup sequence (DONE)
 Implement camera record and download sequences (DONE)
-Temporarily remove video-clean and bubble-count command-line tools
+Temporarily remove video-clean and bubble-count command-line tools (DONE)
 Refactor BubbleCounter and integrate into GUI codebase
 Add bubble-counting functionality
 Test bubble-counting
@@ -17,6 +17,7 @@ Refactor VideoCleaner and integrate into GUI codebase (DONE)
 First integration test on client hardware
 Add full status panel and logging support
 Replace meme text in about dialog, etc. (make it professional/presentable)
+Static linking wxWidgets and OpenCV
 Client test 2
 Refine algorithm parameter selection
 Client test 3
