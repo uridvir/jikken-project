@@ -1,6 +1,7 @@
 #include "CameraVideoStream.h"
 
 #include <vector>
+#include <iostream>
 
 std::mutex mutex;
 
@@ -26,9 +27,15 @@ void CameraVideoStream::removeSubscriber(VideoSubscriber* sub) {
 }
 
 void CameraVideoStream::threadsafeAction(std::function<void()> action) {
-    if (cap.isOpened()) mutex.lock();
-    action();
-    if (cap.isOpened()) mutex.unlock();
+    //Don't touch mutex if called from loop thread
+    if (std::this_thread::get_id() == loopThread.get_id()) {
+        action();
+    }
+    else {
+        if (cap.isOpened()) mutex.lock();
+        action();
+        if (cap.isOpened()) mutex.unlock();
+    } 
 }
 
 //TODO: Proper exit to avoid terminate exception
@@ -43,6 +50,8 @@ void CameraVideoStream::loop() {
         if (!cap.isOpened()) continue; //Having this outside the guarded part probably fixes the bug from earlier
         cv::Mat frame;
         cap.read(frame);
+
+        if (frame.empty()) std::cout << "Empty frame!" << std::endl;
 
         {
             const std::lock_guard<std::mutex> lock(mutex);  // Thread safety

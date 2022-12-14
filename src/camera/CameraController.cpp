@@ -138,22 +138,23 @@ void CameraController::download() {
         {"512 x 480", cv::Size(512, 480)}, {"256 x 240", cv::Size(256, 240)}, {"128 x 120", cv::Size(128, 120)}};
     cv::Size size = sizeMap.at(resolution);
 
-    int fourcc = cv::VideoWriter::fourcc('X', '2', '6', '4');
-    cv::VideoWriter* rec = new cv::VideoWriter("vid.mp4", fourcc, 30, size, true);
+    int fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
+    cv::VideoWriter* rec = new cv::VideoWriter("vid.avi", fourcc, 30, size, false);
     int frames = frameCount.at(resolution);
 
     // Get ready to record
     setCameraProperty("DISPLAY", "OFF");
     serial.execute(CameraCommand::Mode);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Wait for display mode to be ready
 
     CameraVideoCleaner* cleaner = new CameraVideoCleaner(rec, crop, size, frames, waitHandle);
     stream.addSubscriber(cleaner);
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));  // Give cleaner time to start
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));  // Give cleaner time to start
     serial.execute(CameraCommand::Play);
     waitHandle->lock();  // Wait for cleaner
+    waitHandle->unlock();
     serial.execute(CameraCommand::Mode);
     setCameraProperty("DISPLAY", "ON1");
-    serial.execute(CameraCommand::RecReady);
 
     delete waitHandle, rec, cleaner;
 }

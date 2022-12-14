@@ -1,6 +1,7 @@
 #include "CameraVideoCleaner.h"
 
 #include <opencv2/imgproc.hpp>
+#include <iostream>
 
 void CameraVideoCleaner::onReceiveMat(const cv::Mat& mat) {
     if (!started){
@@ -14,7 +15,7 @@ void CameraVideoCleaner::onReceiveMat(const cv::Mat& mat) {
 
     switch (state) {
         case Frame1:
-            gcFrame1 = greycrop(mat);
+            greycrop(mat, gcFrame1);
             rec->write(gcFrame1);
             state = FindingFrame2;
             break;
@@ -27,28 +28,40 @@ void CameraVideoCleaner::onReceiveMat(const cv::Mat& mat) {
                 for (size_t i = f2i; i < buffSize; i++) rec->write(buff.gcAt(i));
                 frameNum += buffSize - f2i;
                 state = Main;
+                std::cout << "Found frame 2!" << std::endl;
+            } else if (absFrameNum > 200) {
+                std::cout << "Couldn't find frame 2! Download operation failed." << std::endl;
+                failure = true;
+                done = true;
             }
             buff.raws.clear();
             buff.gcs.clear();
             break;
         case Main:
-            gcFrame = greycrop(mat);
-            if (std::abs(frameNum - expectedFrames) < 5 && !matDiff(gcFrame, gcFrame1))
+            greycrop(mat, gcFrame);
+            //TODO: Maybe revamp end detection logic
+            if (std::abs(frameNum - expectedFrames) < 5 && !matDiff(gcFrame, gcFrame1)){
+                std::cout << "Wrote " << frameNum << " frames (found end)." << std::endl;
                 done = true;
-            else if (frameNum > expectedFrames)
+            }
+                
+            else if (frameNum >= expectedFrames){
+                std::cout << "Wrote " << frameNum << " frames." << std::endl;
                 done = true;
+            }
+                
             else {
                 rec->write(gcFrame);
                 frameNum++;
             }
+            break;
     }
 }
 
-const cv::Mat& CameraVideoCleaner::greycrop(const cv::Mat& mat){
-    cv::Mat cropped = mat(crop), greycropped = cv::Mat(), resized = cv::Mat();
-    cv::cvtColor(cropped, greycropped, cv::COLOR_BGR2GRAY);
-    cv::resize(greycropped, resized, size);
-    return greycropped;
+void CameraVideoCleaner::greycrop(const cv::Mat& mat, cv::Mat& greycropped){
+    cv::Mat cropped = mat(crop), resized = cv::Mat();
+    cv::resize(cropped, resized, size);
+    cv::cvtColor(resized, greycropped, cv::COLOR_BGR2GRAY);
 }
 
 //Return true if mats are different enough

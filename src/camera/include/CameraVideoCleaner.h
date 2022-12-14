@@ -28,7 +28,9 @@ public:
     void onRemove() override { waitHandle->unlock(); };
 
     // GreycropBufferCache uses this
-    const cv::Mat& greycrop(const cv::Mat& mat);
+    void greycrop(const cv::Mat& mat, cv::Mat& greycropped);
+
+    bool failure = false;
 
 private:
     /**
@@ -49,7 +51,8 @@ private:
         cv::Mat gcAt(size_t index) {
             if (gcs.count(index) == 1) return gcs.at(index);
 
-            cv::Mat greycropped = parent->greycrop(raws[index]);
+            cv::Mat greycropped;
+            parent->greycrop(raws[index], greycropped);
             gcs.insert({index, greycropped});
             return greycropped;
         }
