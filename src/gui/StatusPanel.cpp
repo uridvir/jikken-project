@@ -4,8 +4,8 @@ StatusPanel::StatusPanel(wxWindow* parent) : wxPanel(parent) {
     // Make elements
     off = new wxButton(this, wxID_ANY, L"切");
     off->Enable(false);
-    recReady = new wxButton(this, wxID_ANY, L"レコード可");
-    recReady->Enable(false);
+    readyToRecord = new wxButton(this, wxID_ANY, L"レコード可");
+    readyToRecord->Enable(false);
     recording = new wxButton(this, wxID_ANY, L"レコード中");
     recording->Enable(false);
     readyToDownload = new wxButton(this, wxID_ANY, L"ダウンロード可");
@@ -16,7 +16,7 @@ StatusPanel::StatusPanel(wxWindow* parent) : wxPanel(parent) {
     // Sizer
     wxGridSizer* leftSizer = new wxGridSizer(1, 4, wxSize(10, 0));
     leftSizer->Add(off, 1, wxEXPAND);
-    leftSizer->Add(recReady, 1, wxEXPAND);
+    leftSizer->Add(readyToRecord, 1, wxEXPAND);
     leftSizer->Add(recording, 1, wxEXPAND);
     leftSizer->Add(readyToDownload, 1, wxEXPAND);
 
@@ -34,7 +34,7 @@ StatusPanel::StatusPanel(wxWindow* parent) : wxPanel(parent) {
 void StatusPanel::setStatus(JikkenState state, bool alsoHasDownload) {
     // Clear the boxes
     off->SetBackgroundColour(GetBackgroundColour());
-    recReady->SetBackgroundColour(GetBackgroundColour());
+    readyToRecord->SetBackgroundColour(GetBackgroundColour());
     recording->SetBackgroundColour(GetBackgroundColour());
     readyToDownload->SetBackgroundColour(GetBackgroundColour());
     downloading->SetBackgroundColour(GetBackgroundColour());
@@ -47,8 +47,8 @@ void StatusPanel::setStatus(JikkenState state, bool alsoHasDownload) {
         case Off:
             off->SetBackgroundColour(wxColour("green"));
             break;
-        case RecReady:
-            recReady->SetBackgroundColour(wxColour("green"));
+        case ReadyToRecord:
+            readyToRecord->SetBackgroundColour(wxColour("green"));
             break;
         case Recording:
             recording->SetBackgroundColour(wxColour("green"));

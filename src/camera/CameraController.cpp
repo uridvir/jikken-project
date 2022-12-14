@@ -76,8 +76,6 @@ bool CameraController::config() {
         serial.execute(CameraCommand::Mode);
     setCameraProperty("DISPLAY", "ON1");
 
-    jikkenGlobals.update(MainManager::Message::CameraSetupComplete);
-
     return true;
 }
 

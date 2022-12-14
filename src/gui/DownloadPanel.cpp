@@ -29,6 +29,8 @@ DownloadPanel::DownloadPanel(wxWindow* parent, CameraController* camCtrl) : wxPa
 
 void DownloadPanel::OnRecord(wxCommandEvent& event) {
     std::thread([this]() {
+        jikkenGlobals.setStatus(StatusSetter::Recording);
+
         // Lock
         recordButton->Enable(false);
         downloadButton->Enable(false);
@@ -42,11 +44,15 @@ void DownloadPanel::OnRecord(wxCommandEvent& event) {
         jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
         recordButton->Enable(true);
         downloadButton->Enable(true);
+
+        jikkenGlobals.setStatus(StatusSetter::ReadyToRecord, true);
     }).detach();
 }
 
 void DownloadPanel::OnDownload(wxCommandEvent& event) {
     std::thread([this]() {
+        jikkenGlobals.setStatus(StatusSetter::Downloading);
+
         // Lock
         recordButton->Enable(false);
         downloadButton->Enable(false);
@@ -60,6 +66,8 @@ void DownloadPanel::OnDownload(wxCommandEvent& event) {
         recordButton->Enable(true);
         downloadButton->Enable(false);
         jikkenGlobals.update(MainManager::Message::UnlockAllCameraControls);
+
+        jikkenGlobals.setStatus(StatusSetter::ReadyToRecord);
     }).detach();
 }
 

@@ -53,6 +53,8 @@ ConfigPanel::ConfigPanel(wxWindow* parent, CameraController* camCtrl) : wxPanel(
 }
 
 void ConfigPanel::OnOK(wxCommandEvent& event){
+    jikkenGlobals.setStatus(StatusSetter::Off);
+
     //Fetch config settings
     jikkenGlobals.setProperty("SERIALPORT", std::string(serialPort->GetValue()));
     jikkenGlobals.setProperty("CAMERAID", std::string(cameraID->GetStringSelection()));
@@ -66,6 +68,10 @@ void ConfigPanel::OnOK(wxCommandEvent& event){
     //Try connect to camera
     bool success = camCtrl->config();
     if (success) {
+        jikkenGlobals.setStatus(StatusSetter::ReadyToRecord);
+
+        jikkenGlobals.update(MainManager::Message::CameraSetupComplete);
+
         editButton->Enable(true);
         return;
     };
@@ -100,7 +106,11 @@ void ConfigPanel::OnOK(wxCommandEvent& event){
         }
 
         int noCamera = askNoCamera.ShowModal();
-        if (noCamera == wxID_YES) jikkenGlobals.update(MainManager::Message::CameraOnlyMode);
+        if (noCamera == wxID_YES){
+            jikkenGlobals.setStatus(StatusSetter::Off);
+
+            jikkenGlobals.update(MainManager::Message::CameraOnlyMode);
+        } 
         if (noCamera == wxID_NO) jikkenGlobals.update(MainManager::Message::NormalQuit);
         if (noCamera != wxID_CANCEL){
             editButton->Enable(true);
@@ -110,6 +120,8 @@ void ConfigPanel::OnOK(wxCommandEvent& event){
 }
 
 void ConfigPanel::OnEdit(wxCommandEvent& event){
+    jikkenGlobals.update(MainManager::Message::LockAllCameraControls);
+
     //Unlock
     this->serialPort->Enable(true);
     this->cameraID->Enable(true);
