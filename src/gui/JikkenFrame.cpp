@@ -75,7 +75,10 @@ void JikkenFrame::OnExit(wxCommandEvent& event)
  
 void JikkenFrame::OnAbout(wxCommandEvent& event)
 {
-    wxMessageBox(L"じっけんちゃんは、じっけんちゃんが何わかんないよ～",
+    wxMessageBox(   L"じっけんプログラムことは、WPI大学たの四年生プロジェクトのため出に来ました。"
+                    L"このプログラムがこそ、バブル分析とカメラのコントロールをします。"
+                    L"コード者には（コンピュータサイエンス）、WPI大学のUri Dvirです。"
+                    L"メールはujdvir@wpi.eduである。",
                  L"じっけんプログラム方法", wxOK | wxICON_INFORMATION);
 }
 
