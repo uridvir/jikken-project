@@ -39,6 +39,17 @@ PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, L
             grid->Add(text, 1, wxEXPAND);
             propGetter.insert({prop, [text]() { return std::string(text->GetValue()); }});
         }
+        if (type.find("INT") == 0) {
+            int colonIndex = type.find(":");
+            int lowerBound = std::atoi(type.substr(3, colonIndex - 3).c_str());
+            int upperBound = std::atoi(type.substr(colonIndex + 1).c_str());
+
+            wxChoice* choice = new wxChoice(panel, wxID_ANY);
+            for (int i = lowerBound; i <= upperBound; i++) choice->AppendString(std::to_string(i));
+            choice->SetStringSelection(jikkenGlobals.getProperty(prop));
+            grid->Add(choice, 1, wxEXPAND);
+            propGetter.insert({prop, [choice]() { return std::string(choice->GetStringSelection()); }});
+        }
     }
 
     wxButton* okButton = new wxButton(panel, wxID_ANY, "&OK");
