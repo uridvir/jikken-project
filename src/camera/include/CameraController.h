@@ -21,6 +21,6 @@ public:
     void setCameraProperty(std::string prop, std::string value);
     std::string getCameraProperty(std::string prop) override; //Differs from class diagram
     void record();
-    void download();
+    void download(bool& cleanerFailure);
     void assignMonitor(VideoSubscriber* video);
 };

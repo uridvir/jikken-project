@@ -3,6 +3,10 @@
 #include <opencv2/imgproc.hpp>
 #include <iostream>
 
+#include "JikkenGlobals.h"
+
+extern JikkenGlobals jikkenGlobals;
+
 void CameraVideoCleaner::onReceiveMat(const cv::Mat& mat) {
     if (!started){
         waitHandle->lock();
@@ -28,11 +32,15 @@ void CameraVideoCleaner::onReceiveMat(const cv::Mat& mat) {
                 for (size_t i = f2i; i < buffSize; i++) rec->write(buff.gcAt(i));
                 frameNum += buffSize - f2i;
                 state = Main;
-                std::cout << "Found frame 2!" << std::endl;
+                //Download: Frame 2 found! Continuing.
+                jikkenGlobals.log("ダウンロード：二番フレームが見つかりました！続けます。");
             } else if (absFrameNum > 200) {
-                std::cout << "Couldn't find frame 2! Download operation failed." << std::endl;
                 failure = true;
                 done = true;
+                //Download: Bad! Frame 2 cannot be found. Stopping.
+                jikkenGlobals.log("ダウンロード：大変！二番フレームが見当たりません！やめます。");
+                //For bubble analysis, if video is unchanging/static, the Jikken program cannot function.
+                jikkenGlobals.log("バブル分析には、全然違わないビデオなら、じっけんプログラムが出来ません。");
             }
             buff.raws.clear();
             buff.gcs.clear();
@@ -40,20 +48,27 @@ void CameraVideoCleaner::onReceiveMat(const cv::Mat& mat) {
         case Main:
             greycrop(mat, gcFrame);
             //TODO: Maybe revamp end detection logic
-            if (std::abs(frameNum - expectedFrames) < 5 && !matDiff(gcFrame, gcFrame1)){
-                std::cout << "Wrote " << frameNum << " frames (found end)." << std::endl;
+            if (std::abs(frameNum - expectedFrames) < 5){ //Close enough to end to count as proper finish
+                if (!matDiff(gcFrame, gcFrame1)){
+                    //Download: Last frame found!
+                    jikkenGlobals.log("ダウンロード：最後フレームが見つかりました！");
+                    done = true;
+                }
+            }
+            else if (frameNum > expectedFrames){ //Missed the proper end (less than ideal but fine)
+                //Download: The last frame cannot be found. This is because the first frame was not seen again.
+                jikkenGlobals.log("ダウンロード：最後フレームが見当たりません。一番フレームをもう一回見えなかったですから。");
+                //Despite that, all is well! The frame count is only ±5 away from the correct value.
+                jikkenGlobals.log("それでも、大丈夫！フレームカウントには、正解カウントから、±５つフレームの中に違いますだけ。");
                 done = true;
             }
-                
-            else if (frameNum >= expectedFrames){
-                std::cout << "Wrote " << frameNum << " frames." << std::endl;
-                done = true;
-            }
-                
+
+            if (done) jikkenGlobals.log("ダウンロード：" + std::to_string(frameNum) + "つフレームをファイルに書きました。");
             else {
                 rec->write(gcFrame);
                 frameNum++;
             }
+
             break;
     }
 }

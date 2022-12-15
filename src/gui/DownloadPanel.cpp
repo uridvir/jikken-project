@@ -60,14 +60,19 @@ void DownloadPanel::OnDownload(wxCommandEvent& event) {
         downloadButton->Enable(false);
         if (!jikkenGlobals.update(MainManager::Message::LockAllCameraControls)) return;
 
-        camCtrl->download();
+        bool failure;
+        camCtrl->download(failure);
 
-        wxFileDialog savePrompt(this, L"レコードしたビデオをセーブ", "", "", "AVIのビデオファイル (*.avi)|*.avi", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-        while (savePrompt.ShowModal() == wxID_CANCEL); //Cancel is not allowed
-        std::ifstream in("vid.avi", std::ios::binary);
-        std::string selectedFile = savePrompt.GetPath();
-        std::ofstream out(selectedFile, std::ios::binary);
-        out << in.rdbuf();
+        if (!failure) {
+            wxFileDialog savePrompt(this, L"レコードしたビデオをセーブ", "", "", "AVIのビデオファイル (*.avi)|*.avi",
+                                    wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+            while (savePrompt.ShowModal() == wxID_CANCEL)
+                ;  // Cancel is not allowed
+            std::ifstream in("vid.avi", std::ios::binary);
+            std::string selectedFile = savePrompt.GetPath();
+            std::ofstream out(selectedFile, std::ios::binary);
+            out << in.rdbuf();
+        }
 
         // Unlock
         recordButton->Enable(true);

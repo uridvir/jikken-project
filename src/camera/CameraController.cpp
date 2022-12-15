@@ -134,7 +134,7 @@ void CameraController::record() {
     std::this_thread::sleep_for(std::chrono::milliseconds(recordTimeMillis + 50));
 }
 
-void CameraController::download() {
+void CameraController::download(bool& cleanerFailure) {
     // Setup for cleaner
     std::mutex* waitHandle = new std::mutex();
     cv::Rect crop((720 - 512) / 2, 0, 512, 480);
@@ -161,6 +161,8 @@ void CameraController::download() {
     waitHandle->unlock();
     serial.execute(CameraCommand::Mode);
     setCameraProperty("DISPLAY", "ON1");
+
+    cleanerFailure = cleaner->failure;
 
     delete waitHandle, rec, cleaner;
 }
