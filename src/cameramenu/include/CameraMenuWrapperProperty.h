@@ -38,8 +38,8 @@ public:
 
         return commands;
     }
-    const std::vector<std::string>& getOptions(std::string prop) override {
-        if (!canSetProperty(prop)) return std::vector<std::string>();
+    const std::vector<std::string> getOptions(std::string prop) override {
+        if (!canSetProperty(prop)) return {};
         if (prop != name) return child->getOptions(prop); // Outsource to child
         return options;
     }

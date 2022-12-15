@@ -47,5 +47,5 @@ class CameraSimpleProperty : public CameraMenuItem {
 
         return commands;
     }
-    const std::vector<std::string>& getOptions(std::string prop) override { return options; }
+    const std::vector<std::string> getOptions(std::string prop) override { return options; }
 };

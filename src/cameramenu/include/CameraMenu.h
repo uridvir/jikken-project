@@ -49,8 +49,8 @@ class CameraMenu : public CameraMenuItem {
 
         return commands;
     }
-    const std::vector<std::string>& getOptions(std::string prop) override {
-        if (!canSetProperty(prop)) return std::vector<std::string>();
+    const std::vector<std::string> getOptions(std::string prop) override {
+        if (!canSetProperty(prop)) return {};
         int destIndex = std::distance(children.begin(), std::find_if(children.begin(), children.end(),
                                                                      [prop](auto& item) { return item->canSetProperty(prop); }));
         return children[destIndex]->getOptions(prop);
