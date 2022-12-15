@@ -11,17 +11,18 @@ Implement camera record and download sequences (DONE)
 Temporarily remove video-clean and bubble-count command-line tools (DONE)
 Add basic camera safety check (DONE)
 Add quit logic (DONE)
-Refactor BubbleCounter and integrate into GUI codebase
-Add bubble-counting functionality
-Test bubble-counting
+Refactor BubbleCounter and integrate into GUI codebase (DONE)
+Add bubble-counting functionality (DONE)
+Test bubble-counting (DONE)
 Add no-camera mode (DONE)
 Refactor VideoCleaner and integrate into GUI codebase (DONE)
-First integration test on client hardware
-Add full status panel and logging support
-Replace meme text in about dialog, etc. (make it professional/presentable)
-Static linking wxWidgets and OpenCV
-Client test 2
+First integration test on client hardware (DONE)
+Add full status panel and logging support (DONE)
+Replace meme text in about dialog, etc. (make it professional/presentable) (DONE)
+Client test 2 (DONE)
 Refine algorithm parameter selection
+Consult with client
+Static linking wxWidgets and OpenCV
 Client test 3
 Add overheat precautions
 Client test 4
