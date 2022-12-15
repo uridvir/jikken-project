@@ -22,6 +22,7 @@ Replace meme text in about dialog, etc. (make it professional/presentable) (DONE
 Client test 2 (DONE)
 Refine algorithm parameter selection
 Consult with client
+README for client (dependencies, etc.)
 Static linking wxWidgets and OpenCV
 Client test 3
 Add overheat precautions
