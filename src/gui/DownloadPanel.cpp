@@ -47,7 +47,7 @@ void DownloadPanel::OnRecord(wxCommandEvent& event) {
 
         jikkenGlobals.setStatus(StatusSetter::ReadyToRecord, true);
 
-        if (jikkenGlobals.getProperty("AUTODOWNLOAD") == "ON") OnDownload(wxCommandEvent());
+        if (jikkenGlobals.getProperty("AUTODOWNLOAD") == "入") OnDownload(wxCommandEvent());
     }).detach();
 }
 

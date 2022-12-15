@@ -3,7 +3,7 @@
 
 extern JikkenGlobals jikkenGlobals;
 
-PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, L"プロパティ", wxPoint(50, 50), wxSize(300, 400)) {
+PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, L"プロパティ", wxPoint(50, 50), wxSize(400, 600)) {
     wxPanel* panel = new wxPanel(this);
 
     //Make elements
@@ -27,8 +27,8 @@ PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, L
         
         if (type == "BOOL"){
             wxChoice* choice = new wxChoice(panel, wxID_ANY);
-            choice->AppendString("ON");
-            choice->AppendString("OFF");
+            choice->AppendString(L"入");
+            choice->AppendString(L"切");
             choice->SetStringSelection(jikkenGlobals.getProperty(prop));
             grid->Add(choice, 1, wxEXPAND);
             propGetter.insert({prop, [choice]() { return std::string(choice->GetStringSelection()); }});

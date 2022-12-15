@@ -25,10 +25,16 @@ struct AlgorithmResult {
 };
 
 // Parameters
-int analyzeTotal;
-int frameBufferSize;
 
-
+int analysisCount;
+int frameBundleSize;
+int shapesBlur;
+int shapesBrightnessCutoff;
+int brightSpotsBlur;
+bool brightSpotsAdaptive;
+int brightSpotsAdaptiveC;
+int brightSpotsNonAdaptiveBrightnessCutoff;
+int brightSpotsDilationCount;
 
 //Forward declaring the algorithm
 std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmResult& moreData);
@@ -43,7 +49,18 @@ void BubbleAlgorithm::run(std::string filename){
     std::ofstream csv(folderPath + "/データ.csv");
     csv << "Analysis #" << "," << "Bubble count" << "," << std::endl;
 
-    analyzeTotal = 10;
+    // Calculate constants from Jikken properties
+    analysisCount = std::atoi(jikkenGlobals.getProperty("ANALYSISCOUNT").c_str());
+    frameBundleSize = std::atoi(jikkenGlobals.getProperty("FRAMEBUNDLESIZE").c_str());
+    shapesBlur = std::atoi(jikkenGlobals.getProperty("SHAPESBLUR").c_str()) * 2 - 1;
+    shapesBrightnessCutoff = std::atoi(jikkenGlobals.getProperty("SHAPESBRIGHTNESSCUTOFF").c_str());
+    brightSpotsBlur = std::atoi(jikkenGlobals.getProperty("BRIGHTSPOTBLUR").c_str()) * 2 - 1;
+    brightSpotsAdaptive = jikkenGlobals.getProperty("BRIGHTSPOTADAPTIVE") == "入";
+    brightSpotsAdaptiveC = std::atoi(jikkenGlobals.getProperty("BRIGHTSPOTADAPTIVEC").c_str());
+    brightSpotsNonAdaptiveBrightnessCutoff = std::atoi(jikkenGlobals.getProperty("BRIGHTSPOTNONADAPTIVETHRESH").c_str());
+    brightSpotsDilationCount = std::atoi(jikkenGlobals.getProperty("BRIGHTSPOTDILATECOUNT").c_str());
+
+    // int analysisCount = 10;
 
     int frameCount = videoIn.get(cv::CAP_PROP_FRAME_COUNT);
     if (frameCount == 0) {
@@ -52,18 +69,18 @@ void BubbleAlgorithm::run(std::string filename){
         return;
     }
 
-    int interval = frameCount / analyzeTotal;
+    int interval = frameCount / analysisCount;
     int frameCounter = 1, analyzeCounter = 0;
 
     jikkenGlobals.log("バブル分析：インターバル　" + std::to_string(interval) + "　フレームである");
 
-    frameBufferSize = 15;
+    // int frameBundleSize = 15;
     std::vector<cv::Mat> frames;
 
     cv::Mat frame;
 
-    for (videoIn.read(frame); !frame.empty() && analyzeCounter < analyzeTotal; videoIn.read(frame)) {
-        if (frames.size() == frameBufferSize) frames.erase(frames.begin());
+    for (videoIn.read(frame); !frame.empty() && analyzeCounter < analysisCount; videoIn.read(frame)) {
+        if (frames.size() == frameBundleSize) frames.erase(frames.begin());
         cv::Mat greyFrame;
         cv::cvtColor(frame, greyFrame, cv::COLOR_BGR2GRAY);
         frames.push_back(greyFrame.clone());
@@ -94,7 +111,7 @@ void BubbleAlgorithm::run(std::string filename){
  */
 
 cv::Mat getShapes(const std::vector<cv::Mat>& frames);
-std::vector<cv::Point> getBrightSpots(const cv::Mat& frame, bool adaptive, int dilateIterations);
+std::vector<cv::Point> getBrightSpots(const cv::Mat& frame);
 
 struct ComponentInfo {
     int bubbleCount;
@@ -111,12 +128,8 @@ std::vector<cv::Vec3f> getCircles(ComponentInfo& ci);
 void makeOverlay(const cv::Mat& frame, cv::Mat& shapes, ComponentInfo& ci, cv::Mat& overlay);
 
 std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmResult& moreData) {
-    // Bright spot detection parameters
-    bool adaptive = true;
-    int dilateIterations = 2;
-
     cv::Mat shapes = getShapes(frames);
-    std::vector<cv::Point> brightSpots = getBrightSpots(frames.back(), adaptive, dilateIterations);
+    std::vector<cv::Point> brightSpots = getBrightSpots(frames.back());
     ComponentInfo ci = getComponentInfo(shapes, brightSpots);
     std::vector<cv::Vec3f> circles = getCircles(ci);
 
@@ -149,30 +162,37 @@ std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmRe
  */
 
 cv::Mat getShapes(const std::vector<cv::Mat>& frames) {
+    const int blurN = shapesBlur, threshN = shapesBrightnessCutoff;
+
     cv::Mat diff, blur, thresh;
 
     auto subtractor = cv::createBackgroundSubtractorKNN();
     for (cv::Mat f : frames) subtractor->apply(f, diff);
-    cv::GaussianBlur(diff, blur, cv::Size(5, 5), 0);
-    cv::threshold(blur, thresh, 10, 255, cv::THRESH_BINARY);
+    cv::GaussianBlur(diff, blur, cv::Size(blurN, blurN), 0);
+    cv::threshold(blur, thresh, threshN, 255, cv::THRESH_BINARY);
 
     //cv::imshow("Diff", upscale(diff));
     //cv::imshow("Shapes", upscale(thresh));
-    cv::waitKey(5);
+    //cv::waitKey(5);
 
     return thresh;
 }
 
-std::vector<cv::Point> getBrightSpots(const cv::Mat& frame, bool adaptive, int dilateIterations) {
+std::vector<cv::Point> getBrightSpots(const cv::Mat& frame) {
+    const bool adaptive = brightSpotsAdaptive;
+    int dilateIterations = brightSpotsDilationCount;
+
+    const int aC = brightSpotsAdaptiveC, blurN = brightSpotsBlur, threshN = brightSpotsNonAdaptiveBrightnessCutoff;
+
     cv::Mat blur, thresh, dilated, precontour;
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Point> spots;
 
     if (adaptive)
-        cv::adaptiveThreshold(frame, thresh, 255, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, 5, -10);
+        cv::adaptiveThreshold(frame, thresh, 255, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY, blurN, aC);
     else {
-        cv::GaussianBlur(frame, blur, cv::Size(5, 5), 0);
-        cv::threshold(blur, thresh, 100, 255, cv::THRESH_BINARY);
+        cv::GaussianBlur(frame, blur, cv::Size(blurN, blurN), 0);
+        cv::threshold(blur, thresh, threshN, 255, cv::THRESH_BINARY);
     }
     if (dilateIterations == 0)
         precontour = thresh;
