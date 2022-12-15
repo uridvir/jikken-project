@@ -1,5 +1,8 @@
 #include "BubbleAlgorithm.h"
 
+#include <wx/filefn.h>
+
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <opencv2/features2d.hpp>
@@ -7,8 +10,6 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video/background_segm.hpp>
 #include <set>
-#include <fstream>
-#include <wx/filefn.h>
 
 #include "JikkenGlobals.h"
 
@@ -16,7 +17,7 @@ extern JikkenGlobals jikkenGlobals;
 
 /**
  * Front-end of BubbleAlgorithm
-*/
+ */
 
 struct AlgorithmResult {
     int bubbleCount;
@@ -36,10 +37,10 @@ int brightSpotsAdaptiveC;
 int brightSpotsNonAdaptiveBrightnessCutoff;
 int brightSpotsDilationCount;
 
-//Forward declaring the algorithm
+// Forward declaring the algorithm
 std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmResult& moreData);
 
-void BubbleAlgorithm::run(std::string filename){
+void BubbleAlgorithm::run(std::string filename) {
     cv::VideoCapture videoIn(filename);
 
     size_t lastDot = filename.find_last_of(".");
@@ -47,7 +48,10 @@ void BubbleAlgorithm::run(std::string filename){
     wxMkDir(folderPath);
 
     std::ofstream csv(folderPath + "/データ.csv");
-    csv << "Analysis #" << "," << "Bubble count" << "," << std::endl;
+    csv << "Analysis #"
+        << ","
+        << "Bubble count"
+        << "," << std::endl;
 
     // Calculate constants from Jikken properties
     analysisCount = std::atoi(jikkenGlobals.getProperty("ANALYSISCOUNT").c_str());
@@ -62,12 +66,26 @@ void BubbleAlgorithm::run(std::string filename){
 
     // int analysisCount = 10;
 
+    cv::Mat frame;
+    videoIn.read(frame);
+
+    const std::set<std::pair<int, int>> recognizedResolutions = {{512, 480}, {256, 240}, {128, 120}};
+    const std::map<std::pair<int, int>, int> frameCountMap = {{{512, 480}, 546}, {{256, 240}, 2184}, {{128, 120}, 8736}};
+
     int frameCount = videoIn.get(cv::CAP_PROP_FRAME_COUNT);
-    if (frameCount == 0) {
-        jikkenGlobals.log("エラー！！！");
+
+    if (!frameCount && !recognizedResolutions.count({frame.cols, frame.rows})) {
+        jikkenGlobals.log("バブル分析：エラー！！！");
         jikkenGlobals.log("大変！ビデオで０フレームがあります。じっけんプログラムには、壊れないファイルをあげてください。");
         return;
     }
+    if (!frameCount){
+        jikkenGlobals.log("バブル分析：ビデオでフレーム回数が見当たりません。");
+        jikkenGlobals.log("それでも、ビデオを読めます。じっけんプログラムがこの解像度を知りますから。");
+        jikkenGlobals.log("ですから、このビデオは多分じっけんプログラムから来ました。");
+        frameCount = frameCountMap.at({frame.cols, frame.rows});
+    }
+    jikkenGlobals.log("バブル分析：スタートです！");
 
     int interval = frameCount / analysisCount;
     int frameCounter = 1, analyzeCounter = 0;
@@ -77,9 +95,7 @@ void BubbleAlgorithm::run(std::string filename){
     // int frameBundleSize = 15;
     std::vector<cv::Mat> frames;
 
-    cv::Mat frame;
-
-    for (videoIn.read(frame); !frame.empty() && analyzeCounter < analysisCount; videoIn.read(frame)) {
+    for (; !frame.empty() && analyzeCounter < analysisCount; videoIn.read(frame)) {
         if (frames.size() == frameBundleSize) frames.erase(frames.begin());
         cv::Mat greyFrame;
         cv::cvtColor(frame, greyFrame, cv::COLOR_BGR2GRAY);
@@ -87,20 +103,19 @@ void BubbleAlgorithm::run(std::string filename){
 
         if (frameCounter % interval == 0) {
             analyzeCounter++;
-            
+
             AlgorithmResult moreData;
             auto circles = algorithm(frames, moreData);
 
-            jikkenGlobals.log("分析　" + std::to_string(analyzeCounter) + "番！     " 
-                + std::to_string(moreData.bubbleCount) + "つバブルあります。");
+            jikkenGlobals.log("分析　" + std::to_string(analyzeCounter) + "番！     " + std::to_string(moreData.bubbleCount) +
+                              "つバブルあります。");
 
             csv << analyzeCounter << "," << moreData.bubbleCount << "," << std::endl;
-            for (std::string pictureName : moreData.pictureNames){
+            for (std::string pictureName : moreData.pictureNames) {
                 cv::Mat resized;
                 cv::resize(moreData.pictures[pictureName], resized, cv::Size(512, 480));
                 cv::imwrite(folderPath + "/" + pictureName + std::to_string(analyzeCounter) + ".png", resized);
             }
-            
         }
         frameCounter++;
     }
@@ -146,12 +161,7 @@ std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmRe
     }
 
     moreData.pictureNames = {"フレーム", "オバレイ", "サークル", "シェープ"};
-    moreData.pictures = {
-        {"フレーム", frames.back()},
-        {"オバレイ", overlay},
-        {"サークル", foundCircles},
-        {"シェープ", shapes}
-    };
+    moreData.pictures = {{"フレーム", frames.back()}, {"オバレイ", overlay}, {"サークル", foundCircles}, {"シェープ", shapes}};
     moreData.bubbleCount = ci.bubbleCount;
 
     return circles;
@@ -171,9 +181,9 @@ cv::Mat getShapes(const std::vector<cv::Mat>& frames) {
     cv::GaussianBlur(diff, blur, cv::Size(blurN, blurN), 0);
     cv::threshold(blur, thresh, threshN, 255, cv::THRESH_BINARY);
 
-    //cv::imshow("Diff", upscale(diff));
-    //cv::imshow("Shapes", upscale(thresh));
-    //cv::waitKey(5);
+    // cv::imshow("Diff", upscale(diff));
+    // cv::imshow("Shapes", upscale(thresh));
+    // cv::waitKey(5);
 
     return thresh;
 }
@@ -208,8 +218,8 @@ std::vector<cv::Point> getBrightSpots(const cv::Mat& frame) {
         spots.push_back(cv::Point(br.x + br.width / 2, br.y + br.height / 2));
     }
 
-    //cv::imshow("spots precontour", precontour);
-    //cv::waitKey(5);
+    // cv::imshow("spots precontour", precontour);
+    // cv::waitKey(5);
 
     return spots;
 }
@@ -251,10 +261,9 @@ void addComplexBubbleCircles(std::vector<cv::Vec3f>& circles, ComponentInfo& ci,
 std::vector<cv::Vec3f> getCircles(ComponentInfo& ci) {
     std::vector<cv::Vec3f> circles;
 
-    //Sort components large to small
+    // Sort components large to small
     std::vector<int> sortedLabels;
-    for (int label = 1; label < ci.numLabels; label++)
-        sortedLabels.push_back(label);
+    for (int label = 1; label < ci.numLabels; label++) sortedLabels.push_back(label);
     auto comp = [ci](int l1, int l2) {
         int area1 = ci.stats.at<int>(l1, cv::CC_STAT_AREA);
         int area2 = ci.stats.at<int>(l2, cv::CC_STAT_AREA);
@@ -272,7 +281,7 @@ std::vector<cv::Vec3f> getCircles(ComponentInfo& ci) {
     return circles;
 }
 
-//Find largest acceptable radius which does not collide with background
+// Find largest acceptable radius which does not collide with background
 int searchRadius(cv::Mat& background, cv::Point center, int maxRadius) {
     // Perform binary search
     int lower = 0, upper = maxRadius;
@@ -301,12 +310,12 @@ void addSimpleBubbleCircle(std::vector<cv::Vec3f>& circles, ComponentInfo& ci, i
     int cx = ci.centroids.at<double>(label, 0);
     int cy = ci.centroids.at<double>(label, 1);
 
-    //For simple shapes, don't check boundary
+    // For simple shapes, don't check boundary
     cv::Mat background;
     cv::bitwise_not(ci.components[0], background);
     cv::bitwise_xor(background, ci.components[label], background);
 
-    //Squeeze radius to conform to existing circles
+    // Squeeze radius to conform to existing circles
     int sqRad = searchRadius(background, cv::Point(cx, cy), radius);
     if (sqRad == 0) return;
 
@@ -314,7 +323,7 @@ void addSimpleBubbleCircle(std::vector<cv::Vec3f>& circles, ComponentInfo& ci, i
 }
 
 void addComplexBubbleCircles(std::vector<cv::Vec3f>& circles, ComponentInfo& ci, int label) {
-    //For complex shapes, check the boundary
+    // For complex shapes, check the boundary
     cv::Mat background = ci.components[0];
 
     int bbw = ci.stats.at<int>(label, cv::CC_STAT_WIDTH);
