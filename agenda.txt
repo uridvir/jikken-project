@@ -20,8 +20,8 @@ First integration test on client hardware (DONE)
 Add full status panel and logging support (DONE)
 Replace meme text in about dialog, etc. (make it professional/presentable) (DONE)
 Client test 2 (DONE)
-Refine algorithm parameter selection
-Consult with client
+Refine algorithm parameter selection (DONE)
+Consult with client (DONE)
 README for client (dependencies, etc.)
 Static linking wxWidgets and OpenCV
 Client test 3
