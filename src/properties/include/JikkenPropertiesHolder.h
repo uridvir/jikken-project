@@ -7,7 +7,8 @@ class JikkenPropertiesHolder {
         // Name, display name, type, default value
         {"SERIALPORT", "", "NODISPLAY", "COM3"},
         {"CAMERAID", "", "NODISPLAY", "0"},
-        {"AUTODOWNLOAD", "自動ダウンロード", "BOOL", "ON"}
+        {"AUTODOWNLOAD", "自動ダウンロード", "BOOL", "ON"},
+        {"VIDEOSKEW", "ビデオ’Ｘ’オフセット", "TEXT", "-15"}
     };
 public:
     JikkenPropertiesHolder();

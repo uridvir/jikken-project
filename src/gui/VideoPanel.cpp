@@ -17,6 +17,10 @@ void VideoPanel::init(){
     cv::Mat blueScreen(cv::Size(720, 480), CV_8UC3);
     blueScreen.setTo(cv::Scalar(255, 0, 0)); //OpenCV color order is Blue Green Red
 
+    // cv::Rect crop((720 - 512) / 2, 0, 512, 480);
+    // cv::Mat subMat = blueScreen(crop);
+    // subMat.setTo(cv::Scalar(0, 0, 255));
+
     //Simply use the normal image set routine
     onReceiveMat(blueScreen);
 }

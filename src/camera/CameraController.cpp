@@ -137,7 +137,8 @@ void CameraController::record() {
 void CameraController::download(bool& cleanerFailure) {
     // Setup for cleaner
     std::mutex* waitHandle = new std::mutex();
-    cv::Rect crop((720 - 512) / 2, 0, 512, 480);
+    int skew = std::atoi(jikkenGlobals.getProperty("VIDEOSKEW").c_str());
+    cv::Rect crop((720 - 512) / 2 + skew, 0, 512, 480);
 
     std::string resolution = getCameraProperty("RESOLUTION");
     const std::map<std::string, cv::Size> sizeMap = {
