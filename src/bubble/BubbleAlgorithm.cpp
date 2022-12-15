@@ -26,6 +26,9 @@ struct AlgorithmResult {
 
 // Parameters
 int analyzeTotal;
+int frameBufferSize;
+
+
 
 //Forward declaring the algorithm
 std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmResult& moreData);
@@ -54,7 +57,7 @@ void BubbleAlgorithm::run(std::string filename){
 
     jikkenGlobals.log("バブル分析：インターバル　" + std::to_string(interval) + "　フレームである");
 
-    const int frameBufferSize = 15;
+    frameBufferSize = 15;
     std::vector<cv::Mat> frames;
 
     cv::Mat frame;

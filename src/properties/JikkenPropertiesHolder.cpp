@@ -11,8 +11,8 @@ JikkenPropertiesHolder::JikkenPropertiesHolder(){
         std::string prop = line[0], displayName = line[1], type = line[2], defaultValue = line[3];
         propertiesList.push_back(prop);
         propertyType.insert({prop, type});
-        propertyDisplayName.insert({prop, displayName});
         defaultValueMap.insert({prop, defaultValue});
+        propertyDisplayName.insert({prop, displayName + "（デフォールト：" + defaultValue + "）"});
     }
 
     if (hasPropertiesFile()) { 
