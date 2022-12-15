@@ -47,7 +47,7 @@ void BubbleAlgorithm::run(std::string filename) {
     std::string folderPath = filename.substr(0, lastDot);
     wxMkDir(folderPath);
 
-    std::ofstream csv(folderPath + "/データ.csv");
+    std::ofstream csv(folderPath + "/data.csv");
     csv << "Analysis #"
         << ","
         << "Bubble count"
@@ -160,8 +160,8 @@ std::vector<cv::Vec3f> algorithm(const std::vector<cv::Mat>& frames, AlgorithmRe
         cv::circle(foundCircles, center, radius, cv::Scalar(0, 0, 255));
     }
 
-    moreData.pictureNames = {"フレーム", "オバレイ", "サークル", "シェープ"};
-    moreData.pictures = {{"フレーム", frames.back()}, {"オバレイ", overlay}, {"サークル", foundCircles}, {"シェープ", shapes}};
+    moreData.pictureNames = {"frame", "overlay", "circle", "shape"};
+    moreData.pictures = {{"frame", frames.back()}, {"overlay", overlay}, {"circle", foundCircles}, {"shape", shapes}};
     moreData.bubbleCount = ci.bubbleCount;
 
     return circles;
