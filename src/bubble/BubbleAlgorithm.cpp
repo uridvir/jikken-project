@@ -59,7 +59,7 @@ void BubbleAlgorithm::run(std::string filename) {
     shapesBlur = std::atoi(jikkenGlobals.getProperty("SHAPESBLUR").c_str()) * 2 - 1;
     shapesBrightnessCutoff = std::atoi(jikkenGlobals.getProperty("SHAPESBRIGHTNESSCUTOFF").c_str());
     brightSpotsBlur = std::atoi(jikkenGlobals.getProperty("BRIGHTSPOTBLUR").c_str()) * 2 - 1;
-    brightSpotsAdaptive = jikkenGlobals.getProperty("BRIGHTSPOTADAPTIVE") == "入";
+    brightSpotsAdaptive = jikkenGlobals.getProperty("BRIGHTSPOTADAPTIVE") == "ON";
     brightSpotsAdaptiveC = std::atoi(jikkenGlobals.getProperty("BRIGHTSPOTADAPTIVEC").c_str());
     brightSpotsNonAdaptiveBrightnessCutoff = std::atoi(jikkenGlobals.getProperty("BRIGHTSPOTNONADAPTIVETHRESH").c_str());
     brightSpotsDilationCount = std::atoi(jikkenGlobals.getProperty("BRIGHTSPOTDILATECOUNT").c_str());
