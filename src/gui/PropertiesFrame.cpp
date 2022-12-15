@@ -29,7 +29,7 @@ PropertiesFrame::PropertiesFrame(wxWindow* parent) : wxFrame(parent, wxID_ANY, L
             wxChoice* choice = new wxChoice(panel, wxID_ANY);
             choice->AppendString(L"入");
             choice->AppendString(L"切");
-            choice->SetStringSelection(jikkenGlobals.getProperty(prop));
+            choice->SetStringSelection(wxString::FromUTF8(jikkenGlobals.getProperty(prop)));
             grid->Add(choice, 1, wxEXPAND);
             propGetter.insert({prop, [choice]() { return std::string(choice->GetStringSelection()); }});
         }
