@@ -64,7 +64,7 @@ void DownloadPanel::OnDownload(wxCommandEvent& event) {
         camCtrl->download(failure);
 
         if (!failure) {
-            wxFileDialog savePrompt(this, L"レコードしたビデオをセーブ", "", "", "AVIのビデオファイル (*.avi)|*.avi",
+            wxFileDialog savePrompt(this, L"レコードしたビデオをセーブ", "", "", L"AVIのビデオファイル (*.avi)|*.avi",
                                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
             while (savePrompt.ShowModal() == wxID_CANCEL)
                 ;  // Cancel is not allowed
