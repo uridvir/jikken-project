@@ -3,11 +3,11 @@
 #include <vector>
 #include <iostream>
 
-std::mutex mutex;
-
 CameraVideoStream::CameraVideoStream() {
-    loopThread = std::thread([this]() { this->loop(); });
-    mutex.lock();
+    std::thread loopThread([this]() { this->loop(); });
+    loopId = loopThread.get_id();
+    loopThread.detach(); //It's fine if the loop thread is just suddenly killed, join() is unnecessary
+    mutex.lock(); //While the video stream isn't set up, lock the loop
 }
 
 bool CameraVideoStream::connect(std::string id) {
@@ -28,17 +28,16 @@ void CameraVideoStream::removeSubscriber(VideoSubscriber* sub) {
 
 void CameraVideoStream::threadsafeAction(std::function<void()> action) {
     //Don't touch mutex if called from loop thread
-    if (std::this_thread::get_id() == loopThread.get_id()) {
+    if (std::this_thread::get_id() == loopId) {
         action();
     }
     else {
-        if (cap.isOpened()) mutex.lock();
+        if (cap.isOpened()) mutex.lock(); //If the capture isn't open, the loop is already locked
         action();
-        if (cap.isOpened()) mutex.unlock();
+        if (cap.isOpened()) mutex.unlock(); //If the capture isn't open, keep the loop locked
     } 
 }
 
-//TODO: Proper exit to avoid terminate exception
 void CameraVideoStream::loop() {
     while (true) {
         {

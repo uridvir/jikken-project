@@ -7,7 +7,8 @@
 class CameraVideoStream {
     cv::VideoCapture cap;
     std::vector<VideoSubscriber*> subscribers;
-    std::thread loopThread;
+    std::mutex mutex;
+    std::thread::id loopId;
 public:
     CameraVideoStream();
     bool connect(std::string id);
