@@ -4,7 +4,6 @@
 #include <string>
 #include <thread>
 
-#include "CameraButtonProperty.h"
 #include "CameraMenu.h"
 #include "CameraMenuWrapperProperty.h"
 #include "CameraSimpleProperty.h"
@@ -26,13 +25,7 @@ CameraController::CameraController() {
         "RESOLUTION", {"512 x 480", "512 x 240", "256 x 240", "256 x 120", "128 x 120", "128 x 80", "128 x 34"}, false,
         this));  // ESC on bottom
 
-    CameraMenu* idNumberMenu = new CameraMenu(false);
-    idNumberMenu->addChild(new CameraButtonProperty("IDNUMBER_CLEAR"));
-    idNumberMenu->addChild(new CameraButtonProperty("IDNUMBER_INCREMENT"));
-    idNumberMenu->addChild(new CameraButtonProperty("IDNUMBER_DECREMENT"));
-    mainMenu->addChild(idNumberMenu);
-
-    mainMenu->addBlank();  // Gamma tab
+    mainMenu->addBlank(2);  // ID and Gamma tabs
 
     CameraMenu* systemMenu = new CameraMenu(true);
     systemMenu->addBlank(2);  // Edge enhancement and zoom tabs
