@@ -89,7 +89,7 @@ void JikkenFrame::OnProperties(wxCommandEvent& event) {
 
 void JikkenFrame::OnBubble(wxCommandEvent& event) {
     std::thread([this]() {
-        wxFileDialog openPrompt(this, L"バブル分析ためビデオ開", "", "", L"ビデオファイル (*.avi;*.mp4;*.mpeg)|*.avi;*.mp4;*.mpeg",
+        wxFileDialog openPrompt(this, L"バブル分析ためビデオ開", "", "", L"ビデオファイル (*.avi;*.mp4;*.mpg;*.mpeg)|*.avi;*.mp4;*.mpg;*.mpeg",
                                 wxFD_OPEN|wxFD_FILE_MUST_EXIST);
         if (openPrompt.ShowModal() != wxID_CANCEL) {
             std::string selectedFile = openPrompt.GetPath();
